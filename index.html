@@ -156,14 +156,14 @@
             cursor: pointer;
         }
 
-        /* 뷰어 모드 및 인쇄 시 빈 이미지 및 빈 섹션 완전 숨김 처리 */
+        /* 뷰어 모드 및 인쇄 시 빈 이미지 영역 처리 */
         body.mode-viewer .is-empty-image-zone,
         body.mode-viewer .exact-image-cell.is-empty-cell,
         body.mode-viewer .is-empty-section {
             display: none !important;
         }
 
-        /* 관리자 모드 전용 이미지 등록 가이드 영역 설정 */
+        /* 관리자 모드 전용 이미지 등록 가이드 영역 */
         body.mode-admin .exact-image-cell.is-empty-cell,
         body.mode-admin .is-empty-image-zone {
             border: 1.5px dashed #cbd5e1 !important;
@@ -301,7 +301,7 @@
             height: auto;
         }
 
-        /* 인쇄 출력 시 레이아웃 보존 */
+        /* 인쇄 출력 시 스타일 */
         @media print {
             #homeScreen,
             header, 
@@ -312,6 +312,7 @@
             #adminPwChangeModal,
             #qrCodeModal,
             #googleSyncModal,
+            #cloudModal,
             #toast, 
             .no-print, 
             .action-badges, 
@@ -343,13 +344,11 @@
                 width: 100% !important;
                 min-height: auto !important;
             }
-
             .is-empty-image-zone,
             .exact-image-cell.is-empty-cell,
             .is-empty-section {
                 display: none !important;
             }
-
             .exact-image-grid-row {
                 display: flex !important;
                 flex-wrap: nowrap !important;
@@ -365,8 +364,8 @@
 </head>
 <body class="h-screen flex flex-col mode-admin" onpaste="handleGlobalPaste(event)">
 
-    <!-- 1. 메인 포털 화면 -->
-    <div id="homeScreen" class="fixed inset-0 z-50 bg-slate-900 flex flex-col justify-between overflow-y-auto hidden">
+    <!-- 1. 메인 포털 화면 (기본 실행 시 열림) -->
+    <div id="homeScreen" class="fixed inset-0 z-50 bg-slate-900 flex flex-col justify-between overflow-y-auto">
         <header class="max-w-7xl w-full mx-auto px-6 py-6 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg text-white font-extrabold text-lg tracking-widest">
@@ -907,6 +906,113 @@
                 </div>
             </div>
 
+            <!-- 상단 탭 -->
+            <div class="flex border-b border-slate-200 mb-4 gap-2 text-xs font-bold">
+                <button onclick="switchSyncTab('sheet')" id="tabBtnSheet" class="py-2 px-3 border-b-2 border-emerald-600 text-emerald-700">
+                    📊 구글 시트 본문 자동 매핑
+                </button>
+                <button onclick="switchSyncTab('drive')" id="tabBtnDrive" class="py-2 px-3 text-slate-500 hover:text-slate-700">
+                    📁 특정 구글 드라이브 보관함
+                </button>
+                <button onclick="switchSyncTab('guide')" id="tabBtnGuide" class="py-2 px-3 text-slate-500 hover:text-slate-700">
+                    ⚙️ 1분 연동 스크립트 (GAS)
+                </button>
+            </div>
+
+            <!-- 1. 구글 시트 동기화 탭 -->
+            <div id="syncTabSheet" class="flex flex-col gap-4">
+                <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3.5 text-xs text-emerald-900 leading-relaxed">
+                    <p class="font-bold mb-1">💡 구글 스프레드시트 본문 자동 수정 원리</p>
+                    <p>공유 링크를 입력하고 <strong>[구글 시트에서 본문 동기화]</strong> 버튼을 누르면 거래처, 제품명 및 <strong>1.용기, 2.용량, 3.캡, 4.라벨, 5.인박스, 6.아웃박스, 7.파렛트, 8.적재방법, 9.생산날짜, 10.원액명</strong>까지 표준서 표 본문 전체가 자동으로 분석되어 채워집니다.</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">구글 스프레드시트 공유 링크 URL</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="googleSheetUrlInput" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="https://docs.google.com/spreadsheets/d/시트ID/edit?usp=sharing">
+                        <button onclick="syncFromGoogleSheetUrl()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-2 rounded-lg text-xs shadow transition flex items-center gap-1 shrink-0">
+                            📥 본문 동기화
+                        </button>
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-1">* 시트의 [공유] 설정에서 <strong>'링크가 있는 모든 사용자(뷰어)'</strong>로 설정되어 있어야 바로 로드됩니다.</p>
+                </div>
+
+                <div class="border-t border-slate-200 pt-3">
+                    <h4 class="font-bold text-xs text-slate-700 mb-2">테스트용 표준 서식 구글 시트 샘플</h4>
+                    <button onclick="loadSampleSheetData()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold border border-slate-300 transition">
+                        🧪 샘플 데이터로 본문 자동 매핑 시뮬레이션
+                    </button>
+                </div>
+            </div>
+
+            <!-- 2. 특정 구글 드라이브 보관함 탭 -->
+            <div id="syncTabDrive" class="flex flex-col gap-4 hidden">
+                <div class="bg-blue-50 border border-blue-200 rounded-xl p-3.5 text-xs text-blue-900 leading-relaxed">
+                    <p class="font-bold mb-1">📁 특정 구글 드라이브 폴더 지정</p>
+                    <p>사내 공유 폴더 주소 또는 폴더 ID를 지정하면 표준서를 해당 폴더에 바로 저장하고 열람할 수 있습니다.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">특정 드라이브 폴더 URL 또는 ID</label>
+                        <input type="text" id="googleDriveFolderInput" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="https://drive.google.com/drive/folders/폴더ID" onchange="saveDriveFolderSettings()">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">구글 Apps Script Web App URL</label>
+                        <input type="text" id="googleScriptUrlInput" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="https://script.google.com/macros/s/.../exec" onchange="saveDriveFolderSettings()">
+                    </div>
+                </div>
+
+                <div class="flex gap-2 flex-wrap">
+                    <button onclick="openCurrentDriveFolderLink()" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-3 py-2 rounded-lg text-xs shadow transition flex items-center gap-1">
+                        🔗 폴더 새창 열기
+                    </button>
+                    <button onclick="uploadDocToDriveFolder()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-2 rounded-lg text-xs shadow transition flex items-center gap-1">
+                        ☁️ 이 폴더로 표준서 저장
+                    </button>
+                    <button onclick="fetchDriveFolderList()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-bold px-3 py-2 rounded-lg text-xs transition flex items-center gap-1">
+                        🔄 파일 목록 새로고침
+                    </button>
+                </div>
+
+                <div class="border border-slate-200 rounded-xl overflow-hidden mt-1">
+                    <div class="bg-slate-100 px-3 py-2 border-b border-slate-200 text-xs font-bold text-slate-700 flex justify-between items-center">
+                        <span>🗂️ 지정 폴더 파일 보관함</span>
+                        <span id="driveFileListCount" class="text-slate-500 text-[11px]">대기 중</span>
+                    </div>
+                    <div id="driveFileListContainer" class="p-3 max-h-48 overflow-y-auto flex flex-col gap-1.5 text-xs bg-slate-50">
+                        <div class="text-center py-6 text-slate-400">
+                            웹 앱 URL을 설정하고 [파일 목록 새로고침]을 누르세요.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. 1분 연동 스크립트 가이드 탭 -->
+            <div id="syncTabGuide" class="flex flex-col gap-3 text-xs hidden">
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-slate-700 space-y-1">
+                    <p class="font-bold">🚀 1분 연동 Google Apps Script 생성 방법:</p>
+                    <p>1. 구글 로그인 후 <a href="https://script.google.com" target="_blank" class="text-blue-600 underline font-bold">script.google.com</a>에 접속하여 <strong>[새 프로젝트]</strong>를 만듭니다.</p>
+                    <p>2. 아래 코드를 전체 복사하여 붙여넣고 상단 <strong>[배포] -> [새 배포]</strong>를 누릅니다.</p>
+                    <p>3. 유형을 <strong>'웹 앱(Web App)'</strong>으로 선택하고, 액세스 권한을 반드시 <strong>'모든 사용자(Anyone)'</strong>로 설정 후 배포된 웹 앱 URL을 복사하여 연동창에 붙여넣으면 완료됩니다.</p>
+                </div>
+
+                <div class="relative">
+                    <button onclick="copyAppsScriptCode()" class="absolute top-2 right-2 bg-slate-700 hover:bg-slate-600 text-white px-2 py-1 rounded text-[11px] font-bold">
+                        📋 코드 복사
+                    </button>
+                    <textarea id="appsScriptCodeBlock" readonly class="w-full h-44 bg-slate-900 text-emerald-400 font-mono text-[11px] p-3 rounded-lg focus:outline-none select-all"></textarea>
+                </div>
+            </div>
+
+            <div class="mt-5 pt-3 border-t border-slate-200 flex justify-end">
+                <button onclick="closeGoogleSyncModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 py-2 rounded-lg text-xs transition">
+                    닫기
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- 4. 웹 클라우드 실시간 저장소 및 바로 불러오기 모달 -->
     <div id="cloudModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[85] flex items-center justify-center hidden p-4" onclick="closeCloudModal()">
         <div class="bg-white rounded-2xl shadow-2xl p-5 sm:p-6 w-full max-w-2xl border border-slate-200 flex flex-col relative max-h-[92vh] overflow-hidden" onclick="event.stopPropagation()">
@@ -943,7 +1049,6 @@
 
             <!-- 웹 저장된 표준서 목록 영역 -->
             <div class="flex-1 flex flex-col min-h-0 border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
-                <!-- 목록 헤더 및 검색창 -->
                 <div class="p-2.5 bg-white border-b border-slate-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
                     <div class="flex items-center gap-2">
                         <span class="text-xs font-bold text-slate-700">📂 웹에 저장된 표준서</span>
@@ -955,7 +1060,6 @@
                     </div>
                 </div>
 
-                <!-- 실시간 동기화 문서 리스트 -->
                 <div id="cloudDocList" class="flex-1 overflow-y-auto p-2.5 flex flex-col gap-2">
                     <div class="text-center py-12 text-slate-400 text-xs">
                         저장된 표준서를 불러오는 중입니다...
@@ -1290,7 +1394,6 @@
             return false;
         }
 
-        /* 빈 이미지 판별 및 뷰어/인쇄 모드 레이아웃 보존 동적 처리 */
         function updateEmptyImageVisibility() {
             const stickerBox = document.getElementById('stickerBox');
             const stickerImg = document.getElementById('stickerImg');
@@ -2635,9 +2738,7 @@
             const syncTabGuide = document.getElementById('syncTabGuide');
 
             [tabBtnSheet, tabBtnDrive, tabBtnGuide].forEach(b => {
-                if (b) {
-                    b.className = 'py-2 px-3 text-slate-500 hover:text-slate-700';
-                }
+                if (b) b.className = 'py-2 px-3 text-slate-500 hover:text-slate-700';
             });
 
             if (syncTabSheet) syncTabSheet.classList.add('hidden');
@@ -2688,46 +2789,7 @@
             const block = document.getElementById('appsScriptCodeBlock');
             if (!block) return;
 
-            block.value = `// [Google Apps Script] 대림오일 작업표준서 자동 동기화 & 보관함 웹앱
-const TARGET_FOLDER_ID = "${folderId}";
-
-function doPost(e) {
-  try {
-    const data = JSON.parse(e.postData.contents);
-    const folder = DriveApp.getFolderById(TARGET_FOLDER_ID);
-    const fileName = (data.fileName || "표준서_" + Utilities.formatDate(new Date(), "GMT+9", "yyyyMMdd_HHmmss")) + ".gtstandard";
-    const file = folder.createFile(fileName, JSON.stringify(data), MimeType.PLAIN_TEXT);
-    return ContentService.createTextOutput(JSON.stringify({ status: "success", fileId: file.getId(), name: fileName })).setMimeType(ContentService.MimeType.JSON);
-  } catch(err) {
-    return ContentService.createTextOutput(JSON.stringify({ status: "error", message: err.toString() })).setMimeType(ContentService.MimeType.JSON);
-  }
-}
-
-function doGet(e) {
-  const cb = e.parameter.callback;
-  try {
-    const folder = DriveApp.getFolderById(TARGET_FOLDER_ID);
-    const files = folder.getFiles();
-    const list = [];
-    while (files.hasNext()) {
-      const f = files.next();
-      if (f.getName().endsWith('.gtstandard') || f.getName().endsWith('.json')) {
-        list.push({ id: f.getId(), name: f.getName(), updated: f.getLastUpdated() });
-      }
-    }
-    const resp = JSON.stringify({ status: "success", files: list });
-    if (cb) {
-      return ContentService.createTextOutput(cb + "(" + resp + ")").setMimeType(ContentService.MimeType.JAVASCRIPT);
-    }
-    return ContentService.createTextOutput(resp).setMimeType(ContentService.MimeType.JSON);
-  } catch(err) {
-    const errResp = JSON.stringify({ status: "error", message: err.toString() });
-    if (cb) {
-      return ContentService.createTextOutput(cb + "(" + errResp + ")").setMimeType(ContentService.MimeType.JAVASCRIPT);
-    }
-    return ContentService.createTextOutput(errResp).setMimeType(ContentService.MimeType.JSON);
-  }
-}`;
+            block.value = `// [Google Apps Script] 대림오일 작업표준서 자동 동기화 웹앱\nconst TARGET_FOLDER_ID = "${folderId}";\n\nfunction doPost(e) {\n  try {\n    const data = JSON.parse(e.postData.contents);\n    const folder = DriveApp.getFolderById(TARGET_FOLDER_ID);\n    const fileName = (data.fileName || "표준서_" + Utilities.formatDate(new Date(), "GMT+9", "yyyyMMdd_HHmmss")) + ".gtstandard";\n    const file = folder.createFile(fileName, JSON.stringify(data), MimeType.PLAIN_TEXT);\n    return ContentService.createTextOutput(JSON.stringify({ status: "success", fileId: file.getId(), name: fileName })).setMimeType(ContentService.MimeType.JSON);\n  } catch(err) {\n    return ContentService.createTextOutput(JSON.stringify({ status: "error", message: err.toString() })).setMimeType(ContentService.MimeType.JSON);\n  }\n}\n\nfunction doGet(e) {\n  const cb = e.parameter.callback;\n  try {\n    const folder = DriveApp.getFolderById(TARGET_FOLDER_ID);\n    const files = folder.getFiles();\n    const list = [];\n    while (files.hasNext()) {\n      const f = files.next();\n      if (f.getName().endsWith('.gtstandard') || f.getName().endsWith('.json')) {\n        list.push({ id: f.getId(), name: f.getName(), updated: f.getLastUpdated() });\n      }\n    }\n    const resp = JSON.stringify({ status: "success", files: list });\n    if (cb) {\n      return ContentService.createTextOutput(cb + "(" + resp + ")").setMimeType(ContentService.MimeType.JAVASCRIPT);\n    }\n    return ContentService.createTextOutput(resp).setMimeType(ContentService.MimeType.JSON);\n  } catch(err) {\n    const errResp = JSON.stringify({ status: "error", message: err.toString() });\n    if (cb) {\n      return ContentService.createTextOutput(cb + "(" + errResp + ")").setMimeType(ContentService.MimeType.JAVASCRIPT);\n    }\n    return ContentService.createTextOutput(errResp).setMimeType(ContentService.MimeType.JSON);\n  }\n}`;
         }
 
         function copyAppsScriptCode() {
@@ -2894,284 +2956,186 @@ function doGet(e) {
             window.print();
         }
 
-        rebindEvents();
-        initTableResizing();
-        saveState();
-
-        window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(updateQRCode, 200);
-
-            if (sessionStorage.getItem(ADMIN_AUTH_SESSION_KEY) === 'true') {
-                setUserRole('admin');
-            } else {
-                setUserRole('admin');
-            }
-            updateEmptyImageVisibility();
-        });
-    </script>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'daelim-standard-system';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-            apiKey: "dummy-key",
-            authDomain: "dummy.firebaseapp.com",
-            projectId: "dummy-project",
-            storageBucket: "dummy.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "dummy-app-id"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        let currentUser = null;
+        const CLOUD_STORAGE_KEY = 'DAELIM_WEB_CLOUD_DOCUMENTS_STORE';
         let cloudDocsCache = [];
-        let isInitialLoadDone = false;
 
-        // 모달 열기/닫기 전역 함수 등록
-        window.openCloudModal = function() {
+        function getCloudDocs() {
+            try {
+                const raw = localStorage.getItem(CLOUD_STORAGE_KEY);
+                if (!raw) {
+                    const defaultDocs = [
+                        {
+                            id: 'doc_gt_pao_5w30',
+                            title: '지티 Formula 엔진오일 PAO 5W30 1L (초판 표준)',
+                            buyer: '지티 [GT]',
+                            product: 'GT Formula 엔진오일 PAO 5W30 1L',
+                            category: '엔진오일',
+                            updatedAt: new Date().toISOString(),
+                            content: {
+                                a4Html: document.getElementById('a4Container') ? document.getElementById('a4Container').innerHTML : '',
+                                historyHtml: document.getElementById('historyContainer') ? document.getElementById('historyContainer').innerHTML : ''
+                            }
+                        }
+                    ];
+                    localStorage.setItem(CLOUD_STORAGE_KEY, JSON.stringify(defaultDocs));
+                    return defaultDocs;
+                }
+                return JSON.parse(raw);
+            } catch (e) {
+                console.error('Cloud load error:', e);
+                return [];
+            }
+        }
+
+        function setCloudDocs(docs) {
+            try {
+                localStorage.setItem(CLOUD_STORAGE_KEY, JSON.stringify(docs));
+            } catch (e) {
+                console.error('Cloud save error:', e);
+                showToast('웹 저장소 용량이 초과되었습니다.');
+            }
+        }
+
+        function openCloudModal() {
             const modal = document.getElementById('cloudModal');
             if (modal) {
                 modal.classList.remove('hidden');
+                refreshCloudDocList();
+                const prodCell = document.getElementById('cell_product');
+                const buyerCell = document.getElementById('cell_buyer');
                 const titleInput = document.getElementById('cloudSaveDocTitle');
-                if (titleInput) {
-                    const buyer = document.getElementById('cell_buyer')?.innerText.trim() || '대림오일';
-                    const prod = document.getElementById('cell_product')?.innerText.trim() || '표준서';
-                    const date = new Date().toISOString().slice(0, 10);
-                    titleInput.value = `${buyer}_${prod}_${date}`;
+                if (titleInput && (!titleInput.value || titleInput.value.trim() === '')) {
+                    const b = buyerCell ? buyerCell.innerText.trim() : '대림오일';
+                    const p = prodCell ? prodCell.innerText.trim() : '제품';
+                    titleInput.value = `${b}_${p}_${new Date().toISOString().slice(0, 10)}`;
                 }
             }
-        };
+        }
 
-        window.closeCloudModal = function() {
+        function closeCloudModal() {
             const modal = document.getElementById('cloudModal');
             if (modal) modal.classList.add('hidden');
-        };
-
-        async function initCloudAuth() {
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-            } catch (err) {
-                console.warn('Auth fallback to anonymous:', err);
-                try {
-                    await signInAnonymously(auth);
-                } catch (e) {
-                    console.error('Anonymous auth failed:', e);
-                }
-            }
         }
 
-        onAuthStateChanged(auth, (user) => {
-            currentUser = user;
-            const badge = document.getElementById('cloudSyncStatusBadge');
-            if (user) {
-                if (badge) {
-                    badge.className = 'text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full border border-emerald-300';
-                    badge.innerHTML = '● 실시간 연결됨';
-                }
-                listenToCloudDocs();
-            } else {
-                if (badge) {
-                    badge.className = 'text-[10px] bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-full border border-slate-300';
-                    badge.innerHTML = '○ 오프라인 대기';
-                }
-            }
-        });
-
-        // 실시간 문서 리스트 리스너 (RULE 1 & RULE 2 준수: 단일 collection 구독 후 메모리 정렬)
-        function listenToCloudDocs() {
-            if (!currentUser) return;
-            const docsCol = collection(db, 'artifacts', appId, 'public', 'data', 'standard_docs');
-
-            onSnapshot(docsCol, (snapshot) => {
-                const list = [];
-                snapshot.forEach((docSnap) => {
-                    const data = docSnap.data();
-                    list.push({
-                        id: docSnap.id,
-                        ...data
-                    });
-                });
-
-                // JavaScript 메모리 내에서 최신 수정일 기준 정렬
-                list.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
-                cloudDocsCache = list;
-                renderCloudDocsList(cloudDocsCache);
-
-                // URL에 cloudId 파라미터가 있는 경우 첫 로드 시 자동 열기
-                if (!isInitialLoadDone) {
-                    isInitialLoadDone = true;
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const cloudId = urlParams.get('cloudId');
-                    if (cloudId) {
-                        const target = cloudDocsCache.find(d => d.id === cloudId);
-                        if (target) {
-                            window.loadDocFromCloud(target.id, false);
-                        }
-                    }
-                }
-            }, (error) => {
-                console.error("Firestore onSnapshot error:", error);
-                const listContainer = document.getElementById('cloudDocList');
-                if (listContainer) {
-                    listContainer.innerHTML = `<div class="text-center py-8 text-rose-500 text-xs">문서 목록 동기화 중 오류가 발생했습니다.</div>`;
-                }
-            });
-        }
-
-        function renderCloudDocsList(docs) {
-            const listContainer = document.getElementById('cloudDocList');
-            const countEl = document.getElementById('cloudDocCount');
-            if (countEl) countEl.textContent = `${docs.length}개`;
-
-            if (!listContainer) return;
-
-            if (docs.length === 0) {
-                listContainer.innerHTML = `
-                    <div class="text-center py-12 text-slate-400 text-xs">
-                        <div class="text-2xl mb-1">☁️</div>
-                        <p class="font-medium text-slate-600">웹에 저장된 표준서가 없습니다.</p>
-                        <p class="text-[11px] text-slate-400 mt-0.5">상단의 [웹에 바로 저장]을 눌러 현재 표준서를 등록해 보세요.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            listContainer.innerHTML = '';
-            docs.forEach((item) => {
-                const card = document.createElement('div');
-                card.className = 'bg-white rounded-xl border border-slate-200 hover:border-blue-300 p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 transition shadow-sm hover:shadow';
-
-                const dateStr = item.updatedAt ? new Date(item.updatedAt).toLocaleString('ko-KR', {
-                    year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
-                }) : '-';
-
-                card.innerHTML = `
-                    <div class="flex items-start gap-2.5 flex-1 min-w-0">
-                        <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0 border border-blue-100">
-                            📄
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <div class="flex items-center gap-1.5 flex-wrap">
-                                <h4 class="font-bold text-slate-800 text-xs truncate max-w-full">${escapeHtml(item.title || '이름 없는 표준서')}</h4>
-                                ${item.category ? `<span class="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.2 rounded font-semibold">${escapeHtml(item.category)}</span>` : ''}
-                            </div>
-                            <div class="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5 flex-wrap">
-                                <span>거래처: <b class="text-slate-700 font-semibold">${escapeHtml(item.buyer || '-')}</b></span>
-                                <span>•</span>
-                                <span class="truncate">제품: ${escapeHtml(item.product || '-')}</span>
-                                <span>•</span>
-                                <span class="text-[10px] text-slate-400">${dateStr}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-1.5 w-full sm:w-auto justify-end shrink-0 pt-1 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-                        <button onclick="loadDocFromCloud('${item.id}', true)" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-2.5 py-1.5 rounded-lg text-xs transition shadow-sm flex items-center gap-1">
-                            📂 바로 불러오기
-                        </button>
-                        <button onclick="copyCloudDocShareLink('${item.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-semibold px-2 py-1.5 rounded-lg text-xs transition" title="이 문서 바로가기 링크 복사">
-                            🔗 링크
-                        </button>
-                        <button onclick="deleteDocFromCloud('${item.id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-semibold px-2 py-1.5 rounded-lg text-xs transition" title="삭제">
-                            🗑️
-                        </button>
-                    </div>
-                `;
-                listContainer.appendChild(card);
-            });
-        }
-
-        function escapeHtml(str) {
-            return String(str).replace(/[&<>"']/g, (m) => ({
-                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-            }[m]));
-        }
-
-        window.filterCloudDocs = function(query) {
-            const q = (query || '').toLowerCase().trim();
-            if (!q) {
-                renderCloudDocsList(cloudDocsCache);
-                return;
-            }
-            const filtered = cloudDocsCache.filter(d => 
-                (d.title && d.title.toLowerCase().includes(q)) ||
-                (d.buyer && d.buyer.toLowerCase().includes(q)) ||
-                (d.product && d.product.toLowerCase().includes(q)) ||
-                (d.category && d.category.toLowerCase().includes(q))
-            );
-            renderCloudDocsList(filtered);
-        };
-
-        window.saveCurrentDocToCloud = async function() {
-            if (!currentUser) {
-                showToast('웹 서버에 연결 중입니다. 잠시 후 다시 시도하세요.');
-                return;
-            }
-
+        function saveCurrentDocToCloud() {
             const titleInput = document.getElementById('cloudSaveDocTitle');
-            const rawTitle = titleInput ? titleInput.value.trim() : '';
-            const buyer = document.getElementById('cell_buyer')?.innerText.trim() || '대림오일';
-            const product = document.getElementById('cell_product')?.innerText.trim() || '표준서';
-            const category = document.getElementById('cell_category')?.innerText.trim() || '엔진오일';
-            const docDate = document.getElementById('cell_date')?.innerText.trim() || new Date().toISOString().slice(0, 10);
+            let docTitle = titleInput ? titleInput.value.trim() : '';
+            const prodCell = document.getElementById('cell_product');
+            const buyerCell = document.getElementById('cell_buyer');
+            const catCell = document.getElementById('cell_category');
 
-            const docTitle = rawTitle || `${buyer}_${product}`;
-            const docId = `${buyer}_${product}`.replace(/[\/\\?%*:|"<>#\s]/g, '_').toLowerCase().substring(0, 40) || crypto.randomUUID();
+            const buyer = buyerCell ? buyerCell.innerText.trim() : '대림오일';
+            const product = prodCell ? prodCell.innerText.trim() : '표준규격서';
+            const category = catCell ? catCell.innerText.trim() : '오일';
+
+            if (!docTitle) {
+                docTitle = `${buyer}_${product}_${new Date().toISOString().slice(0, 10)}`;
+            }
 
             const a4El = document.getElementById('a4Container');
             const historyEl = document.getElementById('historyContainer');
 
-            const payload = {
+            const docId = 'doc_' + Date.now();
+            const newDoc = {
                 id: docId,
                 title: docTitle,
                 buyer: buyer,
                 product: product,
                 category: category,
-                docDate: docDate,
                 updatedAt: new Date().toISOString(),
-                updatedBy: currentUser.uid,
                 content: {
                     a4Html: a4El ? a4El.innerHTML : '',
                     historyHtml: historyEl ? historyEl.innerHTML : ''
                 }
             };
 
-            const saveBtn = document.getElementById('btnSaveToCloud');
-            if (saveBtn) {
-                saveBtn.disabled = true;
-                saveBtn.innerHTML = '저장 중...';
+            const list = getCloudDocs();
+            list.unshift(newDoc);
+            setCloudDocs(list);
+
+            refreshCloudDocList();
+            showToast(`☁️ [${docTitle}]이(가) 웹 저장소에 성공적으로 저장되었습니다!`);
+        }
+
+        function refreshCloudDocList(filterKeyword = '') {
+            cloudDocsCache = getCloudDocs();
+            const container = document.getElementById('cloudDocList');
+            const countEl = document.getElementById('cloudDocCount');
+
+            if (!container) return;
+
+            let filtered = cloudDocsCache;
+            if (filterKeyword) {
+                const kw = filterKeyword.toLowerCase();
+                filtered = cloudDocsCache.filter(d => 
+                    (d.title && d.title.toLowerCase().includes(kw)) ||
+                    (d.buyer && d.buyer.toLowerCase().includes(kw)) ||
+                    (d.product && d.product.toLowerCase().includes(kw))
+                );
             }
 
-            try {
-                const targetRef = doc(db, 'artifacts', appId, 'public', 'data', 'standard_docs', docId);
-                await setDoc(targetRef, payload);
-                showToast(`🎉 [${docTitle}] 표준서가 웹 클라우드에 성공적으로 저장되었습니다!`);
-            } catch (err) {
-                console.error("Save to Firestore failed:", err);
-                showToast('웹 저장 중 오류가 발생했습니다.');
-            } finally {
-                if (saveBtn) {
-                    saveBtn.disabled = false;
-                    saveBtn.innerHTML = '<span>☁️</span> 웹에 바로 저장';
-                }
-            }
-        };
+            if (countEl) countEl.textContent = `${filtered.length}개`;
 
-        window.loadDocFromCloud = function(docId, autoCloseModal = true) {
-            const target = cloudDocsCache.find(d => d.id === docId);
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-slate-400 text-xs">
+                        검색 조건에 맞는 표준서가 없습니다.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = '';
+            filtered.forEach(doc => {
+                const item = document.createElement('div');
+                item.className = 'flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 bg-white rounded-xl border border-slate-200 hover:border-blue-400 hover:shadow-sm transition gap-2';
+                
+                const timeStr = doc.updatedAt ? new Date(doc.updatedAt).toLocaleDateString() : '';
+
+                item.innerHTML = `
+                    <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                        <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0 border border-blue-100">
+                            📄
+                        </div>
+                        <div class="truncate">
+                            <h4 class="font-bold text-slate-800 text-xs truncate">${doc.title || doc.product}</h4>
+                            <p class="text-[11px] text-slate-400 flex items-center gap-1.5 mt-0.5">
+                                <span class="bg-slate-100 px-1.5 py-0.2 rounded font-medium text-slate-600">${doc.buyer || '거래처'}</span>
+                                <span>${doc.product || ''}</span>
+                                <span>• ${timeStr}</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1.5 w-full sm:w-auto justify-end shrink-0 pt-1 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                        <button onclick="loadDocFromCloud('${doc.id}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-2.5 py-1 rounded-md text-xs shadow-sm transition flex items-center gap-1">
+                            📂 불러오기
+                        </button>
+                        <button onclick="copyCloudDocUrl('${doc.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded-md text-xs font-semibold border border-slate-300 transition" title="바로 열람 링크 복사">
+                            🔗 링크
+                        </button>
+                        <button onclick="deleteCloudDoc('${doc.id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2 py-1 rounded-md text-xs font-semibold border border-rose-200 transition" title="저장소에서 삭제">
+                            🗑️
+                        </button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function filterCloudDocs(kw) {
+            refreshCloudDocList(kw);
+        }
+
+        function loadDocFromCloud(docId, autoCloseModal = true) {
+            const list = getCloudDocs();
+            const target = list.find(d => d.id === docId);
             if (!target || !target.content) {
                 showToast('문서 데이터를 찾을 수 없습니다.');
                 return;
             }
+
+            const home = document.getElementById('homeScreen');
+            if (home) home.classList.add('hidden');
 
             saveState();
 
@@ -3195,45 +3159,65 @@ function doGet(e) {
                 closeCloudModal();
             }
 
-            // URL 주소창 업데이트 (새로고침해도 해당 문서가 바로 뜨도록)
             const newUrl = `${window.location.pathname}?cloudId=${encodeURIComponent(docId)}`;
             window.history.replaceState({}, '', newUrl);
 
             showToast(`📂 웹 클라우드에서 [${target.title || target.product}]을 불러왔습니다!`);
-        };
+        }
 
-        window.copyCloudDocShareLink = function(docId) {
+        function deleteCloudDoc(docId) {
+            let list = getCloudDocs();
+            list = list.filter(d => d.id !== docId);
+            setCloudDocs(list);
+            refreshCloudDocList();
+            showToast('웹 저장소에서 표준서가 삭제되었습니다.');
+        }
+
+        function copyCloudDocUrl(docId) {
             const baseUrl = window.location.href.split('?')[0].split('#')[0];
-            const shareUrl = `${baseUrl}?cloudId=${encodeURIComponent(docId)}`;
-
-            const tempInput = document.createElement('input');
-            tempInput.value = shareUrl;
-            document.body.appendChild(tempInput);
-            tempInput.select();
+            const fullUrl = `${baseUrl}?cloudId=${encodeURIComponent(docId)}`;
+            const dummy = document.createElement('input');
+            document.body.appendChild(dummy);
+            dummy.value = fullUrl;
+            dummy.select();
             document.execCommand('copy');
-            document.body.removeChild(tempInput);
+            document.body.removeChild(dummy);
+            showToast('📋 표준서 직통 링크가 클립보드에 복사되었습니다.');
+        }
 
-            showToast('🔗 해당 표준서의 바로가기 주소가 클립보드에 복사되었습니다.');
-        };
+        rebindEvents();
+        initTableResizing();
+        saveState();
 
-        window.deleteDocFromCloud = async function(docId) {
-            if (!currentUser) return;
-            const target = cloudDocsCache.find(d => d.id === docId);
-            const title = target ? (target.title || target.product) : docId;
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(updateQRCode, 200);
 
-            // 브라우저 팝업(confirm) 금지 규칙 준수: 즉시 삭제 후 취소 안내 또는 토스트
-            try {
-                const targetRef = doc(db, 'artifacts', appId, 'public', 'data', 'standard_docs', docId);
-                await deleteDoc(targetRef);
-                showToast(`🗑️ [${title}] 표준서가 웹 저장소에서 삭제되었습니다.`);
-            } catch (err) {
-                console.error("Delete failed:", err);
-                showToast('삭제 중 오류가 발생했습니다.');
+            const urlParams = new URLSearchParams(window.location.search);
+            const cloudIdParam = urlParams.get('cloudId');
+            const hasDirectDocParam = Boolean(cloudIdParam) || urlParams.has('product');
+
+            const home = document.getElementById('homeScreen');
+            if (home) {
+                if (hasDirectDocParam) {
+                    home.classList.add('hidden');
+                } else {
+                    home.classList.remove('hidden');
+                }
             }
-        };
 
-        // 초기 인증 시작
-        initCloudAuth();
+            if (cloudIdParam) {
+                setTimeout(() => {
+                    loadDocFromCloud(cloudIdParam, true);
+                }, 300);
+            }
+
+            if (sessionStorage.getItem(ADMIN_AUTH_SESSION_KEY) === 'true') {
+                setUserRole('admin');
+            } else {
+                setUserRole('admin');
+            }
+            updateEmptyImageVisibility();
+        });
     </script>
 </body>
 </html>
