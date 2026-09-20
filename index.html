@@ -444,6 +444,31 @@
                 </div>
             </div>
 
+            <!-- 신규 스프레드시트 뷰어 전용 퀵 링크 바 -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-4xl mx-auto w-full">
+                <div onclick="openExcelViewerModal()" class="bg-slate-800/70 hover:bg-slate-800 border border-slate-700 hover:border-emerald-500/40 p-4 rounded-xl cursor-pointer transition flex items-center justify-between group shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-lg">📑</div>
+                        <div>
+                            <h4 class="text-white text-sm font-bold group-hover:text-emerald-300 transition">엑셀(Excel) 전용 뷰어 열기</h4>
+                            <p class="text-slate-400 text-xs">엑셀 파일을 열어 시트별 원본 그리드와 표를 직접 확인</p>
+                        </div>
+                    </div>
+                    <span class="text-emerald-400 font-bold text-xs group-hover:translate-x-1 transition">열기 ➔</span>
+                </div>
+
+                <div onclick="openGSheetViewerModal()" class="bg-slate-800/70 hover:bg-slate-800 border border-slate-700 hover:border-blue-500/40 p-4 rounded-xl cursor-pointer transition flex items-center justify-between group shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-lg">📊</div>
+                        <div>
+                            <h4 class="text-white text-sm font-bold group-hover:text-blue-300 transition">구글 스프레드시트 뷰어 열기</h4>
+                            <p class="text-slate-400 text-xs">구글 시트 URL 실시간 웹 임베드 미리보기 및 데이터 추출</p>
+                        </div>
+                    </div>
+                    <span class="text-blue-400 font-bold text-xs group-hover:translate-x-1 transition">열기 ➔</span>
+                </div>
+            </div>
+
             <!-- 하단 간편 도구 바 -->
             <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-4 max-w-4xl mx-auto w-full flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div class="flex items-center gap-3">
@@ -502,6 +527,16 @@
                         ☁️ 웹 저장소
                     </button>
 
+                    <!-- 신규: 엑셀 뷰어 버튼 -->
+                    <button onclick="openExcelViewerModal()" class="bg-emerald-700 hover:bg-emerald-800 text-white px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-md transition text-[10px] sm:text-xs font-bold shadow-sm flex items-center gap-1" title="엑셀 파일 시트별 원본 뷰어">
+                        📑 엑셀 뷰어
+                    </button>
+
+                    <!-- 신규: 구글 시트 뷰어 버튼 -->
+                    <button onclick="openGSheetViewerModal()" class="bg-teal-600 hover:bg-teal-700 text-white px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-md transition text-[10px] sm:text-xs font-bold shadow-sm flex items-center gap-1" title="구글 스프레드시트 실시간 뷰어">
+                        📊 구글시트 뷰어
+                    </button>
+
                     <button onclick="openGoogleSyncModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-md transition text-[10px] sm:text-xs font-bold shadow-sm flex items-center gap-1">
                         🌐 구글 연동
                     </button>
@@ -524,8 +559,12 @@
                         ↺ 복구
                     </button>
 
-                    <button onclick="exportStandardDocFile()" class="bg-blue-600 hover:bg-blue-700 text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-md transition text-[10px] sm:text-xs font-bold shadow-sm flex items-center gap-1" title="표준서 파일로 저장">
+                    <button onclick="quickSaveToCloud()" class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-md transition text-[10px] sm:text-xs font-bold shadow-sm flex items-center gap-1 active:scale-95" title="웹 저장소에 현재 제품명으로 즉시 저장">
                         💾 저장
+                    </button>
+
+                    <button onclick="exportStandardDocFile()" class="bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 px-2 py-1 sm:py-1.5 rounded-md transition text-[10px] sm:text-xs font-semibold hidden lg:flex items-center gap-1" title="PC 파일(.gtstandard)로 다운로드 내보내기">
+                        PC저장
                     </button>
 
                     <label class="bg-blue-800 hover:bg-blue-900 text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-md transition text-[10px] sm:text-xs font-bold cursor-pointer shadow-sm flex items-center gap-1" title="저장된 표준서 파일 열기">
@@ -893,65 +932,40 @@
     <!-- 3. 구글 연동 및 드라이브 관리 모달 -->
     <div id="googleSyncModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[80] flex items-center justify-center hidden p-4" onclick="closeGoogleSyncModal()">
         <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-2xl border border-slate-200 flex flex-col relative max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
-            
             <button onclick="closeGoogleSyncModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 font-bold text-xl px-2">✕</button>
 
             <div class="flex items-center gap-3 mb-5">
-                <div class="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-2xl flex items-center justify-center text-2xl font-bold">
-                    🌐
-                </div>
+                <div class="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-2xl flex items-center justify-center text-2xl font-bold">🌐</div>
                 <div>
                     <h3 class="font-bold text-slate-800 text-lg">구글 드라이브 / 스프레드시트 연동</h3>
                     <p class="text-xs text-slate-500">특정 구글 드라이브 폴더 저장 및 구글 시트 본문(1~10번 항목) 자동 동기화</p>
                 </div>
             </div>
 
-            <!-- 상단 탭 -->
             <div class="flex border-b border-slate-200 mb-4 gap-2 text-xs font-bold">
-                <button onclick="switchSyncTab('sheet')" id="tabBtnSheet" class="py-2 px-3 border-b-2 border-emerald-600 text-emerald-700">
-                    📊 구글 시트 본문 자동 매핑
-                </button>
-                <button onclick="switchSyncTab('drive')" id="tabBtnDrive" class="py-2 px-3 text-slate-500 hover:text-slate-700">
-                    📁 특정 구글 드라이브 보관함
-                </button>
-                <button onclick="switchSyncTab('guide')" id="tabBtnGuide" class="py-2 px-3 text-slate-500 hover:text-slate-700">
-                    ⚙️ 1분 연동 스크립트 (GAS)
-                </button>
+                <button onclick="switchSyncTab('sheet')" id="tabBtnSheet" class="py-2 px-3 border-b-2 border-emerald-600 text-emerald-700">📊 구글 시트 본문 자동 매핑</button>
+                <button onclick="switchSyncTab('drive')" id="tabBtnDrive" class="py-2 px-3 text-slate-500 hover:text-slate-700">📁 특정 구글 드라이브 보관함</button>
+                <button onclick="switchSyncTab('guide')" id="tabBtnGuide" class="py-2 px-3 text-slate-500 hover:text-slate-700">⚙️ 1분 연동 스크립트 (GAS)</button>
             </div>
 
-            <!-- 1. 구글 시트 동기화 탭 -->
             <div id="syncTabSheet" class="flex flex-col gap-4">
                 <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3.5 text-xs text-emerald-900 leading-relaxed">
                     <p class="font-bold mb-1">💡 구글 스프레드시트 본문 자동 수정 원리</p>
-                    <p>공유 링크를 입력하고 <strong>[구글 시트에서 본문 동기화]</strong> 버튼을 누르면 거래처, 제품명 및 <strong>1.용기, 2.용량, 3.캡, 4.라벨, 5.인박스, 6.아웃박스, 7.파렛트, 8.적재방법, 9.생산날짜, 10.원액명</strong>까지 표준서 표 본문 전체가 자동으로 분석되어 채워집니다.</p>
+                    <p>공유 링크를 입력하고 <strong>[구글 시트에서 본문 동기화]</strong>를 누르면 1~10번 항목 전체가 자동으로 분석되어 매핑됩니다.</p>
                 </div>
-
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">구글 스프레드시트 공유 링크 URL</label>
                     <div class="flex gap-2">
                         <input type="text" id="googleSheetUrlInput" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="https://docs.google.com/spreadsheets/d/시트ID/edit?usp=sharing">
-                        <button onclick="syncFromGoogleSheetUrl()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-2 rounded-lg text-xs shadow transition flex items-center gap-1 shrink-0">
-                            📥 본문 동기화
-                        </button>
+                        <button onclick="syncFromGoogleSheetUrl()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-2 rounded-lg text-xs shadow transition flex items-center gap-1 shrink-0">📥 본문 동기화</button>
                     </div>
-                    <p class="text-[11px] text-slate-400 mt-1">* 시트의 [공유] 설정에서 <strong>'링크가 있는 모든 사용자(뷰어)'</strong>로 설정되어 있어야 바로 로드됩니다.</p>
                 </div>
-
                 <div class="border-t border-slate-200 pt-3">
-                    <h4 class="font-bold text-xs text-slate-700 mb-2">테스트용 표준 서식 구글 시트 샘플</h4>
-                    <button onclick="loadSampleSheetData()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold border border-slate-300 transition">
-                        🧪 샘플 데이터로 본문 자동 매핑 시뮬레이션
-                    </button>
+                    <button onclick="loadSampleSheetData()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold border border-slate-300 transition">🧪 샘플 데이터 자동 매핑 테스트</button>
                 </div>
             </div>
 
-            <!-- 2. 특정 구글 드라이브 보관함 탭 -->
             <div id="syncTabDrive" class="flex flex-col gap-4 hidden">
-                <div class="bg-blue-50 border border-blue-200 rounded-xl p-3.5 text-xs text-blue-900 leading-relaxed">
-                    <p class="font-bold mb-1">📁 특정 구글 드라이브 폴더 지정</p>
-                    <p>사내 공유 폴더 주소 또는 폴더 ID를 지정하면 표준서를 해당 폴더에 바로 저장하고 열람할 수 있습니다.</p>
-                </div>
-
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">특정 드라이브 폴더 URL 또는 ID</label>
@@ -962,134 +976,49 @@
                         <input type="text" id="googleScriptUrlInput" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="https://script.google.com/macros/s/.../exec" onchange="saveDriveFolderSettings()">
                     </div>
                 </div>
-
                 <div class="flex gap-2 flex-wrap">
-                    <button onclick="openCurrentDriveFolderLink()" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-3 py-2 rounded-lg text-xs shadow transition flex items-center gap-1">
-                        🔗 폴더 새창 열기
-                    </button>
-                    <button onclick="uploadDocToDriveFolder()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-2 rounded-lg text-xs shadow transition flex items-center gap-1">
-                        ☁️ 이 폴더로 표준서 저장
-                    </button>
-                    <button onclick="fetchDriveFolderList()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-bold px-3 py-2 rounded-lg text-xs transition flex items-center gap-1">
-                        🔄 파일 목록 새로고침
-                    </button>
+                    <button onclick="openCurrentDriveFolderLink()" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-3 py-2 rounded-lg text-xs shadow transition">🔗 폴더 열기</button>
+                    <button onclick="uploadDocToDriveFolder()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-2 rounded-lg text-xs shadow transition">☁️ 표준서 저장</button>
+                    <button onclick="fetchDriveFolderList()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-bold px-3 py-2 rounded-lg text-xs transition">🔄 목록 새로고침</button>
                 </div>
-
                 <div class="border border-slate-200 rounded-xl overflow-hidden mt-1">
                     <div class="bg-slate-100 px-3 py-2 border-b border-slate-200 text-xs font-bold text-slate-700 flex justify-between items-center">
                         <span>🗂️ 지정 폴더 파일 보관함</span>
                         <span id="driveFileListCount" class="text-slate-500 text-[11px]">대기 중</span>
                     </div>
                     <div id="driveFileListContainer" class="p-3 max-h-48 overflow-y-auto flex flex-col gap-1.5 text-xs bg-slate-50">
-                        <div class="text-center py-6 text-slate-400">
-                            웹 앱 URL을 설정하고 [파일 목록 새로고침]을 누르세요.
-                        </div>
+                        <div class="text-center py-6 text-slate-400">웹 앱 URL을 설정하고 [목록 새로고침]을 누르세요.</div>
                     </div>
                 </div>
             </div>
 
-            <!-- 3. 1분 연동 스크립트 가이드 탭 -->
             <div id="syncTabGuide" class="flex flex-col gap-3 text-xs hidden">
                 <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-slate-700 space-y-1">
-                    <p class="font-bold">🚀 1분 연동 Google Apps Script 생성 방법:</p>
-                    <p>1. 구글 로그인 후 <a href="https://script.google.com" target="_blank" class="text-blue-600 underline font-bold">script.google.com</a>에 접속하여 <strong>[새 프로젝트]</strong>를 만듭니다.</p>
-                    <p>2. 아래 코드를 전체 복사하여 붙여넣고 상단 <strong>[배포] -> [새 배포]</strong>를 누릅니다.</p>
-                    <p>3. 유형을 <strong>'웹 앱(Web App)'</strong>으로 선택하고, 액세스 권한을 반드시 <strong>'모든 사용자(Anyone)'</strong>로 설정 후 배포된 웹 앱 URL을 복사하여 연동창에 붙여넣으면 완료됩니다.</p>
+                    <p class="font-bold">🚀 1분 연동 Google Apps Script 안내</p>
+                    <p>Google Apps Script에 배포 후 생성된 Web App URL을 연동란에 입력해 주세요.</p>
                 </div>
-
                 <div class="relative">
-                    <button onclick="copyAppsScriptCode()" class="absolute top-2 right-2 bg-slate-700 hover:bg-slate-600 text-white px-2 py-1 rounded text-[11px] font-bold">
-                        📋 코드 복사
-                    </button>
+                    <button onclick="copyAppsScriptCode()" class="absolute top-2 right-2 bg-slate-700 hover:bg-slate-600 text-white px-2 py-1 rounded text-[11px] font-bold">📋 코드 복사</button>
                     <textarea id="appsScriptCodeBlock" readonly class="w-full h-44 bg-slate-900 text-emerald-400 font-mono text-[11px] p-3 rounded-lg focus:outline-none select-all"></textarea>
                 </div>
             </div>
 
             <div class="mt-5 pt-3 border-t border-slate-200 flex justify-end">
-                <button onclick="closeGoogleSyncModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 py-2 rounded-lg text-xs transition">
-                    닫기
-                </button>
+                <button onclick="closeGoogleSyncModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 py-2 rounded-lg text-xs transition">닫기</button>
             </div>
         </div>
     </div>
 
-    <!-- 4. 웹 클라우드 실시간 저장소 및 바로 불러오기 모달 -->
-    <div id="cloudModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[85] flex items-center justify-center hidden p-4" onclick="closeCloudModal()">
-        <div class="bg-white rounded-2xl shadow-2xl p-5 sm:p-6 w-full max-w-2xl border border-slate-200 flex flex-col relative max-h-[92vh] overflow-hidden" onclick="event.stopPropagation()">
-            
-            <button onclick="closeCloudModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 font-bold text-xl px-2">✕</button>
-
-            <div class="flex items-center gap-3 mb-4">
-                <div class="w-11 h-11 bg-blue-100 text-blue-700 rounded-xl flex items-center justify-center text-2xl font-bold shadow-inner">
-                    ☁️
-                </div>
-                <div>
-                    <h3 class="font-bold text-slate-800 text-base sm:text-lg flex items-center gap-2">
-                        웹 클라우드 실시간 저장소
-                        <span id="cloudSyncStatusBadge" class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full border border-emerald-300">
-                            ● 실시간 연결됨
-                        </span>
-                    </h3>
-                    <p class="text-xs text-slate-500">웹상에 표준서를 안전하게 저장하고 언제든지 바로 불러올 수 있습니다.</p>
-                </div>
-            </div>
-
-            <!-- 현재 작업 중인 표준서 즉시 저장 카드 -->
-            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-3.5 mb-4 shadow-sm">
-                <span class="text-xs font-bold text-blue-900 block mb-2 flex items-center gap-1.5">
-                    <span>💾</span> 현재 작업 중인 표준서 웹에 저장하기
-                </span>
-                <div class="flex flex-col sm:flex-row gap-2">
-                    <input type="text" id="cloudSaveDocTitle" class="flex-1 bg-white border border-blue-300 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium" placeholder="저장할 표준서 이름 (예: 지티_엔진오일_1L)">
-                    <button onclick="saveCurrentDocToCloud()" id="btnSaveToCloud" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg text-xs shadow transition flex items-center justify-center gap-1.5 shrink-0">
-                        <span>☁️</span> 웹에 바로 저장
-                    </button>
-                </div>
-            </div>
-
-            <!-- 웹 저장된 표준서 목록 영역 -->
-            <div class="flex-1 flex flex-col min-h-0 border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
-                <div class="p-2.5 bg-white border-b border-slate-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
-                    <div class="flex items-center gap-2">
-                        <span class="text-xs font-bold text-slate-700">📂 웹에 저장된 표준서</span>
-                        <span id="cloudDocCount" class="text-[11px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-semibold border border-slate-200">0개</span>
-                    </div>
-                    <div class="relative flex-1 sm:max-w-xs">
-                        <input type="text" id="cloudSearchInput" oninput="filterCloudDocs(this.value)" placeholder="거래처, 제품명 또는 제목 검색..." class="w-full bg-slate-50 border border-slate-300 rounded-lg pl-7 pr-2.5 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <span class="absolute left-2.5 top-1.5 text-slate-400 text-xs">🔍</span>
-                    </div>
-                </div>
-
-                <div id="cloudDocList" class="flex-1 overflow-y-auto p-2.5 flex flex-col gap-2">
-                    <div class="text-center py-12 text-slate-400 text-xs">
-                        저장된 표준서를 불러오는 중입니다...
-                    </div>
-                </div>
-            </div>
-
-            <!-- 하단 닫기 바 -->
-            <div class="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between">
-                <span class="text-[11px] text-slate-400">💡 목록의 [불러오기]를 누르면 현재 화면에 즉시 적용됩니다.</span>
-                <button onclick="closeCloudModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 py-1.5 rounded-lg text-xs transition">
-                    닫기
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- QR 코드 스캔 및 공유 모달 -->
+    <!-- QR 코드 모달 -->
     <div id="qrCodeModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[80] flex items-center justify-center hidden p-4" onclick="closeQRModal()">
         <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md border border-slate-200 flex flex-col items-center text-center relative" onclick="event.stopPropagation()">
             <button onclick="closeQRModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 font-bold text-xl px-2">✕</button>
-
             <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center text-2xl mb-3 font-bold">📱</div>
             <h3 class="font-bold text-slate-800 text-lg mb-1">작업표준서 QR 코드 &amp; 링크</h3>
-            <p class="text-xs text-slate-500 mb-4">스마트폰 카메라로 아래 QR 코드를 스캔하면 해당 작업표준서로 이동합니다.</p>
-
+            <p class="text-xs text-slate-500 mb-4">카메라로 QR 코드를 스캔하면 해당 작업표준서로 이동합니다.</p>
             <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-4 shadow-inner">
                 <div id="modalLargeQRCode" class="qr-code-box w-48 h-48 flex items-center justify-center"></div>
             </div>
-
             <div class="w-full bg-slate-100 p-2.5 rounded-lg border border-slate-200 text-xs mb-4 text-left">
                 <div class="font-bold text-slate-700 mb-1 flex items-center justify-between">
                     <span>🔗 스캔 연결 URL 주소</span>
@@ -1097,37 +1026,26 @@
                 </div>
                 <input type="text" id="qrUrlDisplay" class="w-full bg-white border border-slate-300 rounded px-2 py-1 text-[11px] font-mono text-slate-600 focus:outline-none" onchange="updateCustomQRUrl(this.value)">
             </div>
-
             <div class="flex gap-2 w-full">
-                <button onclick="downloadQRImage()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-lg text-xs shadow transition flex items-center justify-center gap-1">
-                    💾 QR 이미지 저장
-                </button>
-                <button onclick="closeQRModal()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2 rounded-lg text-xs transition">
-                    닫기
-                </button>
+                <button onclick="downloadQRImage()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-lg text-xs shadow transition">💾 QR 이미지 저장</button>
+                <button onclick="closeQRModal()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2 rounded-lg text-xs transition">닫기</button>
             </div>
         </div>
     </div>
 
-    <!-- 엑셀 추출 이미지 모음 모달 -->
+    <!-- 엑셀 추출 이미지 모달 -->
     <div id="imageModal" class="fixed inset-0 bg-black/40 z-50 flex items-center justify-start hidden">
         <div class="bg-white rounded-r-2xl shadow-2xl w-96 sm:w-[480px] h-full flex flex-col overflow-hidden border-r border-slate-200">
             <div class="px-4 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
                 <div>
-                    <h3 class="font-bold text-slate-800 text-sm flex items-center gap-1.5">
-                        <span>🖼️ 엑셀 추출 이미지 모음</span>
-                    </h3>
-                    <p class="text-[11px] text-slate-500">클릭하여 원본 확대 또는 드래그하여 바로 배치하세요.</p>
+                    <h3 class="font-bold text-slate-800 text-sm flex items-center gap-1.5">🖼️ 엑셀 추출 이미지 모음</h3>
+                    <p class="text-[11px] text-slate-500">클릭하여 확대하거나 드래그하여 배치하세요.</p>
                 </div>
                 <button onclick="toggleImageModal(false)" class="text-slate-400 hover:text-slate-600 font-bold text-xl px-2">×</button>
             </div>
-
             <div id="modalImageList" class="p-4 overflow-y-auto flex flex-col gap-3 bg-slate-100 flex-1">
-                <div class="w-full text-center text-slate-400 py-12 text-xs">
-                    <p class="font-medium">상단에서 [엑셀 불러오기]를 진행하면 이미지가 자동으로 추출됩니다.</p>
-                </div>
+                <div class="w-full text-center text-slate-400 py-12 text-xs font-medium">추출된 매핑 이미지가 없습니다.</div>
             </div>
-
             <div class="px-4 py-3 border-t border-slate-200 bg-white flex justify-between items-center text-xs text-slate-500">
                 <span id="extractedCount">추출된 이미지: 0개</span>
                 <button onclick="toggleImageModal(false)" class="bg-slate-800 hover:bg-slate-900 text-white px-3 py-1.5 rounded text-xs font-semibold transition">닫기</button>
@@ -1135,7 +1053,7 @@
         </div>
     </div>
 
-    <!-- 이미지 원본 확대 모달 -->
+    <!-- 이미지 확대 모달 -->
     <div id="imageZoomModal" class="fixed inset-0 bg-black/80 z-[60] flex items-center justify-center hidden p-4" onclick="closeImageZoom()">
         <div class="relative max-w-4xl max-h-[90vh] bg-white rounded-xl shadow-2xl p-3 flex flex-col items-center" onclick="event.stopPropagation()">
             <div class="w-full flex justify-between items-center mb-2 px-1">
@@ -1199,6 +1117,230 @@
         </div>
     </div>
 
+    <!-- 4. 웹 클라우드 실시간 저장소 및 바로 불러오기 모달 -->
+    <div id="cloudModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[85] flex items-center justify-center hidden p-4" onclick="closeCloudModal()">
+        <div class="bg-white rounded-2xl shadow-2xl p-5 sm:p-6 w-full max-w-3xl border border-slate-200 flex flex-col relative max-h-[92vh] overflow-hidden" onclick="event.stopPropagation()">
+            <button onclick="closeCloudModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 font-bold text-xl px-2">✕</button>
+
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-11 h-11 bg-blue-100 text-blue-700 rounded-xl flex items-center justify-center text-2xl font-bold shadow-inner">☁️</div>
+                <div>
+                    <h3 class="font-bold text-slate-800 text-base sm:text-lg flex items-center gap-2">
+                        웹 클라우드 표준서 보관함
+                        <span id="cloudSyncStatusBadge" class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full border border-emerald-300">● 실시간 연결됨</span>
+                    </h3>
+                    <p class="text-xs text-slate-500">제품명 기준 저장, 유종/품목 종류별 자동 분류 및 색인(Index) 검색 시스템</p>
+                </div>
+            </div>
+
+            <!-- 현재 작업 중인 표준서 저장 카드 -->
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-3.5 mb-4 shadow-sm">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-blue-900 flex items-center gap-1.5"><span>💾</span> 현재 작업 중인 표준서 웹에 저장</span>
+                    <span class="text-[11px] text-blue-600 font-medium">※ 종류와 제품명이 함께 연동됩니다</span>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                    <div class="sm:col-span-4">
+                        <select id="cloudSaveDocCategory" class="w-full bg-white border border-blue-300 rounded-lg px-2.5 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold">
+                            <option value="엔진오일">🛢️ 엔진오일</option>
+                            <option value="미션오일/ATF">⚙️ 미션오일/ATF</option>
+                            <option value="기어유">🔧 기어유 (Gear Oil)</option>
+                            <option value="브레이크액">🛑 브레이크액</option>
+                            <option value="부동액/냉각수">❄️ 부동액/냉각수</option>
+                            <option value="연료첨가제">⚡ 연료첨가제</option>
+                            <option value="산업용윤활유">🏭 산업용 윤활유</option>
+                            <option value="기타">📦 기타 포장품</option>
+                        </select>
+                    </div>
+                    <div class="sm:col-span-6">
+                        <input type="text" id="cloudSaveDocTitle" class="w-full bg-white border border-blue-300 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold" placeholder="제품명 입력 (예: GT Formula 엔진오일 PAO 5W30 1L)">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <button onclick="saveCurrentDocToCloud()" id="btnSaveToCloud" class="w-full h-full bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-2 rounded-lg text-xs shadow transition flex items-center justify-center gap-1">
+                            <span>☁️</span> 저장
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 웹 저장된 표준서 목록 및 색인/종류 검색 영역 -->
+            <div class="flex-1 flex flex-col min-h-0 border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
+                <div class="bg-white border-b border-slate-200 px-3 py-2 flex items-center gap-1.5 overflow-x-auto select-none text-xs">
+                    <span class="font-bold text-slate-500 text-[11px] shrink-0 mr-1">분류:</span>
+                    <button onclick="setCategoryFilter('ALL')" data-category="ALL" class="cat-filter-btn px-2.5 py-1 rounded-md font-bold text-xs bg-blue-600 text-white transition shadow-sm shrink-0">전체</button>
+                    <button onclick="setCategoryFilter('엔진오일')" data-category="엔진오일" class="cat-filter-btn px-2.5 py-1 rounded-md font-medium text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 transition shrink-0">엔진오일</button>
+                    <button onclick="setCategoryFilter('미션오일/ATF')" data-category="미션오일/ATF" class="cat-filter-btn px-2.5 py-1 rounded-md font-medium text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 transition shrink-0">미션/ATF</button>
+                    <button onclick="setCategoryFilter('기어유')" data-category="기어유" class="cat-filter-btn px-2.5 py-1 rounded-md font-medium text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 transition shrink-0">기어유</button>
+                    <button onclick="setCategoryFilter('브레이크액')" data-category="브레이크액" class="cat-filter-btn px-2.5 py-1 rounded-md font-medium text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 transition shrink-0">브레이크액</button>
+                    <button onclick="setCategoryFilter('부동액/냉각수')" data-category="부동액/냉각수" class="cat-filter-btn px-2.5 py-1 rounded-md font-medium text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 transition shrink-0">부동액</button>
+                    <button onclick="setCategoryFilter('연료첨가제')" data-category="연료첨가제" class="cat-filter-btn px-2.5 py-1 rounded-md font-medium text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 transition shrink-0">첨가제</button>
+                    <button onclick="setCategoryFilter('기타')" data-category="기타" class="cat-filter-btn px-2.5 py-1 rounded-md font-medium text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 transition shrink-0">기타</button>
+                </div>
+
+                <div class="bg-slate-100/90 border-b border-slate-200 px-3 py-1.5 flex items-center gap-1 overflow-x-auto text-[11px] font-bold text-slate-600 select-none">
+                    <span class="text-slate-400 text-[10px] shrink-0 mr-1">색인:</span>
+                    <button onclick="setIndexFilter('')" data-index="" class="index-filter-btn px-1.5 py-0.5 rounded bg-blue-600 text-white font-bold transition">전체</button>
+                    <button onclick="setIndexFilter('ㄱ')" data-index="ㄱ" class="index-filter-btn px-1 py-0.5 rounded hover:bg-white text-slate-700 transition">ㄱ</button>
+                    <button onclick="setIndexFilter('ㄴ')" data-index="ㄴ" class="index-filter-btn px-1 py-0.5 rounded hover:bg-white text-slate-700 transition">ㄴ</button>
+                    <button onclick="setIndexFilter('ㄷ')" data-index="ㄷ" class="index-filter-btn px-1 py-0.5 rounded hover:bg-white text-slate-700 transition">ㄷ</button>
+                    <button onclick="setIndexFilter('ㄹ')" data-index="ㄹ" class="index-filter-btn px-1 py-0.5 rounded hover:bg-white text-slate-700 transition">ㄹ</button>
+                    <button onclick="setIndexFilter('ㅁ')" data-index="ㅁ" class="index-filter-btn px-1 py-0.5 rounded hover:bg-white text-slate-700 transition">ㅁ</button>
+                    <button onclick="setIndexFilter('ㅂ')" data-index="ㅂ" class="index-filter-btn px-1 py-0.5 rounded hover:bg-white text-slate-700 transition">ㅂ</button>
+                    <button onclick="setIndexFilter('ㅅ')" data-index="ㅅ" class="index-filter-btn px-1 py-0.5 rounded hover:bg-white text-slate-700 transition">ㅅ</button>
+                    <button onclick="setIndexFilter('ㅇ')" data-index="ㅇ" class="index-filter-btn px-1 py-0.5 rounded hover:bg-white text-slate-700 transition">ㅇ</button>
+                    <button onclick="setIndexFilter('ㅈ')" data-index="ㅈ" class="index-filter-btn px-1 py-0.5 rounded hover:bg-white text-slate-700 transition">ㅈ</button>
+                    <button onclick="setIndexFilter('ㅊ')" data-index="ㅊ" class="index-filter-btn px-1 py-0.5 rounded hover:bg-white text-slate-700 transition">ㅊ</button>
+                    <button onclick="setIndexFilter('ㅋ')" data-index="ㅋ" class="index-filter-btn px-1 py-0.5 rounded hover:bg-white text-slate-700 transition">ㅋ</button>
+                    <button onclick="setIndexFilter('ㅌ')" data-index="ㅌ" class="index-filter-btn px-1 py-0.5 rounded hover:bg-white text-slate-700 transition">ㅌ</button>
+                    <button onclick="setIndexFilter('ㅍ')" data-index="ㅍ" class="index-filter-btn px-1 py-0.5 rounded hover:bg-white text-slate-700 transition">ㅍ</button>
+                    <button onclick="setIndexFilter('ㅎ')" data-index="ㅎ" class="index-filter-btn px-1 py-0.5 rounded hover:bg-white text-slate-700 transition">ㅎ</button>
+                    <span class="text-slate-300">|</span>
+                    <button onclick="setIndexFilter('A-Z')" data-index="A-Z" class="index-filter-btn px-1.5 py-0.5 rounded hover:bg-white text-slate-700 transition">A-Z</button>
+                    <button onclick="setIndexFilter('0-9')" data-index="0-9" class="index-filter-btn px-1.5 py-0.5 rounded hover:bg-white text-slate-700 transition">0-9</button>
+                </div>
+
+                <div class="p-2.5 bg-white border-b border-slate-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-slate-700">📂 저장된 표준서 목록</span>
+                        <span id="cloudDocCount" class="text-[11px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-semibold border border-slate-200">0개</span>
+                    </div>
+                    <div class="relative flex-1 sm:max-w-xs">
+                        <input type="text" id="cloudSearchInput" oninput="onSearchInputChange(this.value)" placeholder="제품명, 초성(예: ㅇㅈㅇㅇ), 거래처 검색..." class="w-full bg-slate-50 border border-slate-300 rounded-lg pl-7 pr-2.5 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <span class="absolute left-2.5 top-1.5 text-slate-400 text-xs">🔍</span>
+                    </div>
+                </div>
+
+                <div id="cloudDocList" class="flex-1 overflow-y-auto p-2.5 flex flex-col gap-2">
+                    <div class="text-center py-12 text-slate-400 text-xs">저장된 표준서를 불러오는 중입니다...</div>
+                </div>
+            </div>
+
+            <!-- 하단 백업 및 복원 도구 바 -->
+            <div class="mt-4 pt-3 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-1.5">
+                    <button onclick="backupAllCloudDocsToFile()" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shadow flex items-center gap-1" title="저장소에 보관된 모든 제품 표준서를 JSON 파일로 다운로드">
+                        📦 전체 백업 다운로드
+                    </button>
+                    <label class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shadow flex items-center gap-1 cursor-pointer" title="백업해 둔 JSON 파일을 선택하여 전체 복원">
+                        📥 백업 파일 복원
+                        <input type="file" id="cloudBackupFileInput" class="hidden" accept=".json" onchange="restoreCloudDocsFromFile(event)">
+                    </label>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-[11px] text-slate-400 hidden sm:inline">💡 깃허브 배포 전 전체 백업을 내려받아 보관하세요.</span>
+                    <button onclick="closeCloudModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 py-1.5 rounded-lg text-xs transition">닫기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. 엑셀 전용 스프레드시트 뷰어 모달 -->
+    <div id="excelViewerModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[90] flex items-center justify-center hidden p-2 sm:p-4" onclick="closeExcelViewerModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[92vh] border border-slate-200 flex flex-col relative overflow-hidden" onclick="event.stopPropagation()">
+            <div class="px-4 py-3 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800 shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 bg-emerald-600 rounded-lg flex items-center justify-center font-bold text-lg shadow">📑</div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="font-bold text-sm sm:text-base text-white">엑셀(Excel) 통합 뷰어</h3>
+                            <span id="excelViewerFileBadge" class="text-[10px] bg-slate-800 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/40 font-mono">파일 대기 중</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400">엑셀 시트 원본 그리드를 탐색하고 표준서로 데이터를 자동 적용합니다.</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <label class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition shadow flex items-center gap-1.5">
+                        📂 다른 엑셀 열기
+                        <input type="file" id="excelViewerFileInput" class="hidden" accept=".xlsx,.xls,.csv" onchange="handleExcelViewerUpload(event)">
+                    </label>
+                    <button onclick="applyExcelViewerToStandardDoc()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow flex items-center gap-1">⚡ 표준서에 매핑 적용</button>
+                    <button onclick="closeExcelViewerModal()" class="text-slate-400 hover:text-white font-bold text-xl px-2">✕</button>
+                </div>
+            </div>
+            <div class="bg-slate-100 border-b border-slate-300 px-4 py-1.5 flex items-center justify-between gap-2 shrink-0">
+                <div id="excelViewerSheetTabs" class="flex items-center gap-1.5 overflow-x-auto text-xs py-0.5">
+                    <span class="text-slate-400 text-xs">시트가 로드되지 않았습니다. [다른 엑셀 열기]를 눌러 파일을 선택하세요.</span>
+                </div>
+                <div class="flex items-center gap-2 shrink-0 text-xs text-slate-600">
+                    <span id="excelViewerGridDim" class="font-mono text-[11px] bg-white px-2 py-0.5 rounded border border-slate-300">0행 x 0열</span>
+                </div>
+            </div>
+            <div id="excelViewerGridWrapper" class="flex-1 overflow-auto bg-slate-200 p-2 sm:p-3 relative">
+                <div id="excelViewerTableContainer" class="bg-white shadow rounded-lg border border-slate-300 min-w-full inline-block">
+                    <div class="text-center py-24 text-slate-400 text-xs">엑셀 파일(.xlsx, .xls, .csv)을 열면 원본 시트 그리드가 표시됩니다.</div>
+                </div>
+            </div>
+            <div class="px-4 py-2 bg-slate-50 border-t border-slate-200 text-xs flex items-center justify-between text-slate-600 shrink-0">
+                <div class="flex items-center gap-2">
+                    <span class="font-bold text-slate-700">선택된 셀:</span>
+                    <span id="excelViewerSelectedCellCoord" class="font-mono font-bold text-blue-600 bg-white px-1.5 py-0.5 rounded border border-slate-300">-</span>
+                    <span id="excelViewerSelectedCellValue" class="truncate max-w-md text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200 text-[11px]">-</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="copyExcelSelectedCellValue()" class="px-2.5 py-1 bg-white hover:bg-slate-100 border border-slate-300 rounded font-semibold text-slate-700 text-xs transition shadow-sm">📋 셀 값 복사</button>
+                    <button onclick="closeExcelViewerModal()" class="px-3 py-1 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded font-bold text-xs transition">닫기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. 구글 스프레드시트 실시간 뷰어 모달 -->
+    <div id="gsheetViewerModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[90] flex items-center justify-center hidden p-2 sm:p-4" onclick="closeGSheetViewerModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[92vh] border border-slate-200 flex flex-col relative overflow-hidden" onclick="event.stopPropagation()">
+            <div class="px-4 py-3 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800 shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 bg-teal-600 rounded-lg flex items-center justify-center font-bold text-lg shadow">📊</div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="font-bold text-sm sm:text-base text-white">구글 스프레드시트 실시간 뷰어</h3>
+                            <span class="text-[10px] bg-teal-900/60 text-teal-300 px-2 py-0.5 rounded border border-teal-500/40 font-semibold">Live Google Sheets</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400">구글 스프레드시트를 실시간 웹 미리보기로 확인하거나 데이터를 추출합니다.</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="applyGSheetToStandardDoc()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow flex items-center gap-1">📥 표준서로 본문 동기화</button>
+                    <button onclick="closeGSheetViewerModal()" class="text-slate-400 hover:text-white font-bold text-xl px-2">✕</button>
+                </div>
+            </div>
+            <div class="bg-slate-100 border-b border-slate-200 px-4 py-2.5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shrink-0">
+                <div class="flex-1 flex items-center gap-2">
+                    <span class="text-xs font-bold text-slate-700 shrink-0">시트 URL:</span>
+                    <input type="text" id="gsheetViewerUrlInput" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="https://docs.google.com/spreadsheets/d/시트ID/edit?usp=sharing">
+                    <button onclick="loadGSheetInViewer()" class="bg-teal-600 hover:bg-teal-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs shadow transition shrink-0 flex items-center gap-1">🔍 뷰어 로드</button>
+                </div>
+                <div class="flex items-center gap-1 bg-slate-200 p-0.5 rounded-lg text-xs self-end sm:self-auto shrink-0">
+                    <button onclick="switchGSheetViewMode('embed')" id="btnGSheetModeEmbed" class="px-3 py-1 rounded-md font-bold text-xs bg-white text-slate-800 shadow-sm transition">🌐 구글 원본 뷰</button>
+                    <button onclick="switchGSheetViewMode('grid')" id="btnGSheetModeGrid" class="px-3 py-1 rounded-md font-medium text-xs text-slate-600 hover:text-slate-800 transition">📋 데이터 그리드 뷰</button>
+                </div>
+            </div>
+            <div class="flex-1 overflow-hidden relative bg-slate-200">
+                <div id="gsheetEmbedContainer" class="w-full h-full">
+                    <iframe id="gsheetIframe" class="w-full h-full border-0 bg-white" src="about:blank" title="Google Spreadsheet Viewer"></iframe>
+                    <div id="gsheetEmbedPlaceholder" class="absolute inset-0 bg-slate-50 flex flex-col items-center justify-center p-6 text-center">
+                        <div class="w-16 h-16 bg-teal-100 text-teal-600 rounded-2xl flex items-center justify-center text-3xl mb-3 shadow-inner">📊</div>
+                        <h4 class="font-bold text-slate-800 text-sm mb-1">구글 스프레드시트 URL을 입력해 주세요</h4>
+                        <p class="text-xs text-slate-500 max-w-md mb-4">공유 링크를 넣고 [뷰어 로드]를 누르면 실시간 화면이 여기에 표시됩니다.</p>
+                        <button onclick="loadSampleGSheetInViewer()" class="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-100 rounded-lg text-xs font-semibold text-slate-700 transition shadow-sm">🧪 샘플 구글시트 테스트 불러오기</button>
+                    </div>
+                </div>
+                <div id="gsheetGridContainer" class="w-full h-full overflow-auto p-3 hidden bg-slate-200">
+                    <div id="gsheetGridTableWrapper" class="bg-white shadow rounded-lg border border-slate-300 min-w-full inline-block">
+                        <div class="text-center py-24 text-slate-400 text-xs">상단에 URL 입력 후 [뷰어 로드]를 실행하면 데이터 표가 표시됩니다.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="px-4 py-2 bg-slate-50 border-t border-slate-200 text-xs flex items-center justify-between text-slate-600 shrink-0">
+                <div class="text-[11px] text-slate-500">💡 구글 시트 공유가 <strong>'링크가 있는 모든 사용자(뷰어)'</strong>로 설정되어 있어야 원활히 표시됩니다.</div>
+                <div class="flex items-center gap-2">
+                    <button onclick="openGSheetInNewWindow()" class="px-3 py-1 bg-white hover:bg-slate-100 border border-slate-300 rounded font-semibold text-slate-700 text-xs transition shadow-sm">🔗 새 창으로 시트 열기</button>
+                    <button onclick="closeGSheetViewerModal()" class="px-3 py-1 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded font-bold text-xs transition">닫기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         const toast = document.getElementById('toast');
         let draggedSrc = null;
@@ -1214,6 +1356,7 @@
         let currentCell = null;
         let savedSelectionRange = null;
 
+        // 실행 취소/다시 실행 스택
         let undoStack = [];
         let redoStack = [];
         const MAX_HISTORY = 30;
@@ -1237,6 +1380,356 @@
         function returnToHome() {
             const home = document.getElementById('homeScreen');
             if (home) home.classList.remove('hidden');
+        }
+
+        /* ==========================================================================
+           엑셀 전용 스프레드시트 뷰어 (Excel Viewer) 로직
+           ========================================================================== */
+        let excelViewerWorkbook = null;
+        let excelViewerCurrentSheetName = null;
+        let excelViewerSelectedCell = { coord: '', value: '' };
+
+        function openExcelViewerModal() {
+            const modal = document.getElementById('excelViewerModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                // 기존 업로드된 엑셀 데이터가 있다면 자동으로 뷰어에 렌더링
+                if (globalWorkbookData && !excelViewerWorkbook) {
+                    excelViewerWorkbook = globalWorkbookData;
+                    renderExcelViewerSheets(excelViewerWorkbook.SheetNames[0]);
+                }
+            }
+        }
+
+        function closeExcelViewerModal() {
+            const modal = document.getElementById('excelViewerModal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        async function handleExcelViewerUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            showToast('엑셀 뷰어에 파일 로딩 중...');
+
+            try {
+                const data = await file.arrayBuffer();
+                const workbook = XLSX.read(data, { type: 'array' });
+                excelViewerWorkbook = workbook;
+                globalWorkbookData = workbook;
+
+                const badge = document.getElementById('excelViewerFileBadge');
+                if (badge) badge.textContent = file.name;
+
+                renderExcelViewerSheets(workbook.SheetNames[0]);
+                showToast(`📑 [${file.name}] 엑셀 뷰어 로드 완료!`);
+            } catch (err) {
+                console.error(err);
+                showToast('엑셀 파일을 읽는 중 오류가 발생했습니다.');
+            }
+            event.target.value = '';
+        }
+
+        function renderExcelViewerSheets(activeSheetName) {
+            if (!excelViewerWorkbook) return;
+            const tabsContainer = document.getElementById('excelViewerSheetTabs');
+            if (!tabsContainer) return;
+
+            tabsContainer.innerHTML = '';
+            excelViewerWorkbook.SheetNames.forEach(sheetName => {
+                const btn = document.createElement('button');
+                const isActive = (sheetName === activeSheetName);
+                btn.className = isActive 
+                    ? 'px-3 py-1 bg-emerald-600 text-white rounded font-bold text-xs shadow-sm shrink-0'
+                    : 'px-3 py-1 bg-white hover:bg-slate-200 text-slate-700 border border-slate-300 rounded font-medium text-xs shrink-0 transition';
+                btn.textContent = sheetName;
+                btn.onclick = () => switchExcelViewerSheet(sheetName);
+                tabsContainer.appendChild(btn);
+            });
+
+            switchExcelViewerSheet(activeSheetName || excelViewerWorkbook.SheetNames[0]);
+        }
+
+        function switchExcelViewerSheet(sheetName) {
+            if (!excelViewerWorkbook || !excelViewerWorkbook.Sheets[sheetName]) return;
+            excelViewerCurrentSheetName = sheetName;
+
+            // 탭 스타일 갱신
+            const tabs = document.querySelectorAll('#excelViewerSheetTabs button');
+            tabs.forEach(btn => {
+                if (btn.textContent === sheetName) {
+                    btn.className = 'px-3 py-1 bg-emerald-600 text-white rounded font-bold text-xs shadow-sm shrink-0';
+                } else {
+                    btn.className = 'px-3 py-1 bg-white hover:bg-slate-200 text-slate-700 border border-slate-300 rounded font-medium text-xs shrink-0 transition';
+                }
+            });
+
+            const sheet = excelViewerWorkbook.Sheets[sheetName];
+            const rows2D = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+
+            const container = document.getElementById('excelViewerTableContainer');
+            const dimEl = document.getElementById('excelViewerGridDim');
+            if (!container) return;
+
+            if (!rows2D || rows2D.length === 0) {
+                container.innerHTML = '<div class="text-center py-16 text-slate-400 text-xs">시트에 데이터가 없습니다.</div>';
+                if (dimEl) dimEl.textContent = '0행 x 0열';
+                return;
+            }
+
+            // 최대 열 개수 계산
+            let maxCols = 0;
+            rows2D.forEach(r => { if (r.length > maxCols) maxCols = r.length; });
+            if (dimEl) dimEl.textContent = `${rows2D.length}행 x ${maxCols}열`;
+
+            // 스프레드시트 렌더링 (A, B, C... 및 1, 2, 3...)
+            let html = `<table class="min-w-full border-collapse text-xs font-sans text-slate-800"><thead><tr class="bg-slate-100 text-slate-600 select-none">`;
+            html += `<th class="border border-slate-300 w-12 py-1 px-1 text-center font-mono bg-slate-200 text-[11px]">#</th>`;
+
+            for (let c = 0; c < maxCols; c++) {
+                const colLetter = getExcelColName(c);
+                html += `<th class="border border-slate-300 px-3 py-1.5 text-center font-mono font-bold bg-slate-100 min-w-[100px] text-[11px]">${colLetter}</th>`;
+            }
+            html += `</tr></thead><tbody>`;
+
+            rows2D.forEach((row, rIdx) => {
+                const rowNum = rIdx + 1;
+                html += `<tr class="hover:bg-blue-50/50 transition">`;
+                html += `<td class="border border-slate-300 text-center font-mono text-slate-500 bg-slate-100 select-none py-1 px-1 font-semibold text-[11px]">${rowNum}</td>`;
+
+                for (let cIdx = 0; cIdx < maxCols; cIdx++) {
+                    const val = row[cIdx] !== undefined ? String(row[cIdx]) : '';
+                    const coord = `${getExcelColName(cIdx)}${rowNum}`;
+                    const safeVal = escapeHtml(val);
+                    html += `<td class="border border-slate-300 px-2.5 py-1.5 align-middle truncate max-w-xs hover:bg-blue-100/60 cursor-pointer" onclick="selectExcelViewerCell('${coord}', this)" title="${safeVal}">${safeVal}</td>`;
+                }
+                html += `</tr>`;
+            });
+
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+
+        function getExcelColName(colIndex) {
+            let temp, letter = '';
+            while (colIndex >= 0) {
+                temp = colIndex % 26;
+                letter = String.fromCharCode(temp + 65) + letter;
+                colIndex = Math.floor(colIndex / 26) - 1;
+            }
+            return letter;
+        }
+
+        function selectExcelViewerCell(coord, tdEl) {
+            document.querySelectorAll('#excelViewerTableContainer td').forEach(td => td.classList.remove('bg-blue-200/80', 'outline', 'outline-2', 'outline-blue-500'));
+            tdEl.classList.add('bg-blue-200/80', 'outline', 'outline-2', 'outline-blue-500');
+
+            excelViewerSelectedCell.coord = coord;
+            excelViewerSelectedCell.value = tdEl.innerText;
+
+            const coordEl = document.getElementById('excelViewerSelectedCellCoord');
+            const valEl = document.getElementById('excelViewerSelectedCellValue');
+            if (coordEl) coordEl.textContent = coord;
+            if (valEl) valEl.textContent = tdEl.innerText || '(빈 셀)';
+        }
+
+        function copyExcelSelectedCellValue() {
+            if (!excelViewerSelectedCell.value) {
+                showToast('복사할 셀을 선택해 주세요.');
+                return;
+            }
+            const dummy = document.createElement('textarea');
+            dummy.value = excelViewerSelectedCell.value;
+            document.body.appendChild(dummy);
+            dummy.select();
+            document.execCommand('copy');
+            document.body.removeChild(dummy);
+            showToast(`📋 [${excelViewerSelectedCell.coord}] 셀 내용이 복사되었습니다.`);
+        }
+
+        function applyExcelViewerToStandardDoc() {
+            if (!excelViewerWorkbook || !excelViewerCurrentSheetName) {
+                showToast('매핑할 엑셀 시트가 열려있지 않습니다.');
+                return;
+            }
+            const sheet = excelViewerWorkbook.Sheets[excelViewerCurrentSheetName];
+            if (sheet) {
+                const rows2D = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+                applyStructuredDataToDocument(rows2D);
+                closeExcelViewerModal();
+                showToast(`🎉 [${excelViewerCurrentSheetName}] 시트 데이터가 작업표준서에 자동 매핑되었습니다!`);
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        /* ==========================================================================
+           구글 스프레드시트 실시간 뷰어 (Google Sheets Viewer) 로직
+           ========================================================================== */
+        let currentGSheetViewMode = 'embed';
+        let currentGSheetParsedData = null;
+
+        function openGSheetViewerModal() {
+            const modal = document.getElementById('gsheetViewerModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                const savedUrl = localStorage.getItem(GSHEET_URL_KEY);
+                const input = document.getElementById('gsheetViewerUrlInput');
+                if (savedUrl && input && !input.value) {
+                    input.value = savedUrl;
+                    loadGSheetInViewer();
+                }
+            }
+        }
+
+        function closeGSheetViewerModal() {
+            const modal = document.getElementById('gsheetViewerModal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function switchGSheetViewMode(mode) {
+            currentGSheetViewMode = mode;
+            const btnEmbed = document.getElementById('btnGSheetModeEmbed');
+            const btnGrid = document.getElementById('btnGSheetModeGrid');
+            const embedBox = document.getElementById('gsheetEmbedContainer');
+            const gridBox = document.getElementById('gsheetGridContainer');
+
+            if (mode === 'embed') {
+                if (btnEmbed) btnEmbed.className = 'px-3 py-1 rounded-md font-bold text-xs bg-white text-slate-800 shadow-sm transition';
+                if (btnGrid) btnGrid.className = 'px-3 py-1 rounded-md font-medium text-xs text-slate-600 hover:text-slate-800 transition';
+                if (embedBox) embedBox.classList.remove('hidden');
+                if (gridBox) gridBox.classList.add('hidden');
+            } else {
+                if (btnGrid) btnGrid.className = 'px-3 py-1 rounded-md font-bold text-xs bg-white text-slate-800 shadow-sm transition';
+                if (btnEmbed) btnEmbed.className = 'px-3 py-1 rounded-md font-medium text-xs text-slate-600 hover:text-slate-800 transition';
+                if (gridBox) gridBox.classList.remove('hidden');
+                if (embedBox) embedBox.classList.add('hidden');
+            }
+        }
+
+        function loadGSheetInViewer() {
+            const input = document.getElementById('gsheetViewerUrlInput');
+            const url = input ? input.value.trim() : '';
+            if (!url) {
+                showToast('구글 스프레드시트 링크를 입력해 주세요.');
+                return;
+            }
+            localStorage.setItem(GSHEET_URL_KEY, url);
+
+            const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+            if (!match) {
+                showToast('올바른 구글 스프레드시트 링크가 아닙니다.');
+                return;
+            }
+            const docId = match[1];
+
+            // 1. 임베드 뷰어용 URL (미리보기 iframe)
+            const iframe = document.getElementById('gsheetIframe');
+            const placeholder = document.getElementById('gsheetEmbedPlaceholder');
+            const embedUrl = `https://docs.google.com/spreadsheets/d/${docId}/preview`;
+
+            if (iframe) {
+                iframe.src = embedUrl;
+                if (placeholder) placeholder.classList.add('hidden');
+            }
+
+            // 2. 백그라운드에서 CSV 추출하여 데이터 그리드 뷰 및 본문 매핑 준비
+            fetchGSheetDataForGrid(docId);
+            showToast('구글 스프레드시트 뷰어가 연결되었습니다.');
+        }
+
+        async function fetchGSheetDataForGrid(docId) {
+            const csvUrl = `https://docs.google.com/spreadsheets/d/${docId}/export?format=csv`;
+            try {
+                const res = await fetch(csvUrl);
+                if (!res.ok) throw new Error('공유 권한 없음');
+                const csvText = await res.text();
+                const workbook = XLSX.read(csvText, { type: 'string' });
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rows2D = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' });
+                currentGSheetParsedData = rows2D;
+                renderGSheetDataGrid(rows2D);
+            } catch (e) {
+                console.warn('구글 시트 CSV 파싱 실패 (임베드 뷰만 지원될 수 있음):', e);
+                const container = document.getElementById('gsheetGridTableWrapper');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="p-8 text-center text-amber-600 text-xs">
+                            <p class="font-bold mb-1">⚠️ 데이터 그리드 추출 안내</p>
+                            <p>구글 시트 공유가 '링크가 있는 모든 사용자(뷰어)'로 설정되어 있지 않으면 임베드 뷰로만 확인 가능합니다.</p>
+                        </div>`;
+                }
+            }
+        }
+
+        function renderGSheetDataGrid(rows2D) {
+            const container = document.getElementById('gsheetGridTableWrapper');
+            if (!container) return;
+
+            if (!rows2D || rows2D.length === 0) {
+                container.innerHTML = '<div class="text-center py-16 text-slate-400 text-xs">추출된 데이터가 없습니다.</div>';
+                return;
+            }
+
+            let maxCols = 0;
+            rows2D.forEach(r => { if (r.length > maxCols) maxCols = r.length; });
+
+            let html = `<table class="min-w-full border-collapse text-xs font-sans text-slate-800"><thead><tr class="bg-teal-50 text-teal-900 select-none">`;
+            html += `<th class="border border-teal-200 w-12 py-1 px-1 text-center font-mono bg-teal-100 text-[11px]">#</th>`;
+
+            for (let c = 0; c < maxCols; c++) {
+                html += `<th class="border border-teal-200 px-3 py-1.5 text-center font-mono font-bold bg-teal-50 text-[11px]">${getExcelColName(c)}</th>`;
+            }
+            html += `</tr></thead><tbody>`;
+
+            rows2D.forEach((row, rIdx) => {
+                html += `<tr class="hover:bg-teal-50/40 transition">`;
+                html += `<td class="border border-slate-300 text-center font-mono text-slate-500 bg-slate-50 select-none py-1 px-1 text-[11px]">${rIdx + 1}</td>`;
+                for (let cIdx = 0; cIdx < maxCols; cIdx++) {
+                    const val = row[cIdx] !== undefined ? String(row[cIdx]) : '';
+                    html += `<td class="border border-slate-300 px-2.5 py-1.5 align-middle truncate max-w-xs">${escapeHtml(val)}</td>`;
+                }
+                html += `</tr>`;
+            });
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+
+        function applyGSheetToStandardDoc() {
+            if (currentGSheetParsedData && currentGSheetParsedData.length > 0) {
+                applyStructuredDataToDocument(currentGSheetParsedData);
+                closeGSheetViewerModal();
+                showToast('🎉 구글 스프레드시트 본문 규격이 표준서에 성공적으로 반영되었습니다!');
+            } else {
+                syncFromGoogleSheetUrl();
+                closeGSheetViewerModal();
+            }
+        }
+
+        function loadSampleGSheetInViewer() {
+            const input = document.getElementById('gsheetViewerUrlInput');
+            if (input) {
+                input.value = "https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit";
+                loadGSheetInViewer();
+            }
+        }
+
+        function openGSheetInNewWindow() {
+            const input = document.getElementById('gsheetViewerUrlInput');
+            const url = input ? input.value.trim() : '';
+            if (!url) {
+                showToast('구글 시트 URL을 먼저 입력하세요.');
+                return;
+            }
+            window.open(url, '_blank');
         }
 
         function enterViewerMode() {
@@ -2330,6 +2823,58 @@
 
         const STORAGE_KEY = 'DAELIM_SPEC_STUDIO_BACKUP_V2';
 
+        /* 상단 [💾 저장] 클릭 시 제품명 기준으로 웹 저장소에 즉시 저장 */
+        function quickSaveToCloud() {
+            const prodCell = document.getElementById('cell_product');
+            const catCell = document.getElementById('cell_category');
+            const buyerCell = document.getElementById('cell_buyer');
+
+            let productName = prodCell ? prodCell.innerText.trim() : '';
+            if (!productName) {
+                productName = '작업표준서_' + new Date().toISOString().slice(0, 10);
+            }
+
+            const category = (catCell ? catCell.innerText.trim() : '') || '엔진오일';
+            const buyer = (buyerCell ? buyerCell.innerText.trim() : '') || '대림오일';
+
+            const a4El = document.getElementById('a4Container');
+            const historyEl = document.getElementById('historyContainer');
+
+            const list = getCloudDocs();
+            // 동일 제품명 및 카테고리가 있는 경우 기존 항목 업데이트, 없으면 새 등록
+            const existingIdx = list.findIndex(d => (d.product === productName && d.category === category));
+            const docId = existingIdx !== -1 ? list[existingIdx].id : ('doc_' + Date.now());
+
+            const newDoc = {
+                id: docId,
+                title: productName,
+                product: productName,
+                buyer: buyer,
+                category: category,
+                updatedAt: new Date().toISOString(),
+                content: {
+                    a4Html: a4El ? a4El.innerHTML : '',
+                    historyHtml: historyEl ? historyEl.innerHTML : ''
+                }
+            };
+
+            if (existingIdx !== -1) {
+                list[existingIdx] = newDoc;
+            } else {
+                list.unshift(newDoc);
+            }
+
+            setCloudDocs(list);
+            refreshCloudDocList();
+            updateQRCode();
+
+            // 브라우저 주소창에도 해당 문서 고유 링크를 즉시 반영
+            const newUrl = `${window.location.pathname}?cloudId=${encodeURIComponent(docId)}`;
+            window.history.replaceState({}, '', newUrl);
+
+            showToast(`☁️ [${productName}] 웹 저장소에 즉시 저장되었습니다!`);
+        }
+
         function exportStandardDocFile() {
             try {
                 const a4El = document.getElementById('a4Container');
@@ -2959,6 +3504,54 @@
         const CLOUD_STORAGE_KEY = 'DAELIM_WEB_CLOUD_DOCUMENTS_STORE';
         let cloudDocsCache = [];
 
+        // 현재 검색 및 색인 필터 상태
+        let currentCategoryFilter = 'ALL';
+        let currentIndexFilter = '';
+        let currentSearchKeyword = '';
+
+        /* 한글 초성 분리 및 색인 유틸리티 */
+        const CHOSUNG_LIST = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+        
+        function getChosung(str) {
+            if (!str) return '';
+            let result = '';
+            for (let i = 0; i < str.length; i++) {
+                const code = str.charCodeAt(i);
+                if (code >= 0xAC00 && code <= 0xD7A3) {
+                    const uniIndex = code - 0xAC00;
+                    const chosungIndex = Math.floor(uniIndex / (21 * 28));
+                    result += CHOSUNG_LIST[chosungIndex];
+                } else {
+                    result += str.charAt(i);
+                }
+            }
+            return result;
+        }
+
+        function getFirstChosungOrGroup(str) {
+            if (!str) return '';
+            const trimmed = str.trim();
+            if (!trimmed) return '';
+            const firstChar = trimmed.charAt(0);
+            const code = firstChar.charCodeAt(0);
+
+            if (code >= 0xAC00 && code <= 0xD7A3) {
+                const chosungIndex = Math.floor((code - 0xAC00) / (21 * 28));
+                let ch = CHOSUNG_LIST[chosungIndex];
+                if (ch === 'ㄲ') ch = 'ㄱ';
+                if (ch === 'ㄸ') ch = 'ㄷ';
+                if (ch === 'ㅃ') ch = 'ㅂ';
+                if (ch === 'ㅆ') ch = 'ㅅ';
+                if (ch === 'ㅉ') ch = 'ㅈ';
+                return ch;
+            } else if (/[a-zA-Z]/.test(firstChar)) {
+                return 'A-Z';
+            } else if (/[0-9]/.test(firstChar)) {
+                return '0-9';
+            }
+            return '기타';
+        }
+
         function getCloudDocs() {
             try {
                 const raw = localStorage.getItem(CLOUD_STORAGE_KEY);
@@ -2966,14 +3559,38 @@
                     const defaultDocs = [
                         {
                             id: 'doc_gt_pao_5w30',
-                            title: '지티 Formula 엔진오일 PAO 5W30 1L (초판 표준)',
-                            buyer: '지티 [GT]',
+                            title: 'GT Formula 엔진오일 PAO 5W30 1L',
                             product: 'GT Formula 엔진오일 PAO 5W30 1L',
+                            buyer: '지티 [GT]',
                             category: '엔진오일',
                             updatedAt: new Date().toISOString(),
                             content: {
                                 a4Html: document.getElementById('a4Container') ? document.getElementById('a4Container').innerHTML : '',
                                 historyHtml: document.getElementById('historyContainer') ? document.getElementById('historyContainer').innerHTML : ''
+                            }
+                        },
+                        {
+                            id: 'doc_mobis_atf_sp4',
+                            title: 'MOBIS ATF SP-IV 미션오일 4L',
+                            product: 'MOBIS ATF SP-IV 미션오일 4L',
+                            buyer: '현대모비스 [MOBIS]',
+                            category: '미션오일/ATF',
+                            updatedAt: new Date(Date.now() - 86400000).toISOString(),
+                            content: {
+                                a4Html: '',
+                                historyHtml: ''
+                            }
+                        },
+                        {
+                            id: 'doc_daelim_gear_75w90',
+                            title: 'DAELIM Gear Oil HD 75W-90 1L',
+                            product: 'DAELIM Gear Oil HD 75W-90 1L',
+                            buyer: '대림오일 [DAELIM]',
+                            category: '기어유',
+                            updatedAt: new Date(Date.now() - 172800000).toISOString(),
+                            content: {
+                                a4Html: '',
+                                historyHtml: ''
                             }
                         }
                     ];
@@ -3000,15 +3617,34 @@
             const modal = document.getElementById('cloudModal');
             if (modal) {
                 modal.classList.remove('hidden');
-                refreshCloudDocList();
+
+                // 현재 표준서의 제품명 및 구분(카테고리)을 자동으로 읽어서 기본값 설정
                 const prodCell = document.getElementById('cell_product');
-                const buyerCell = document.getElementById('cell_buyer');
+                const catCell = document.getElementById('cell_category');
                 const titleInput = document.getElementById('cloudSaveDocTitle');
-                if (titleInput && (!titleInput.value || titleInput.value.trim() === '')) {
-                    const b = buyerCell ? buyerCell.innerText.trim() : '대림오일';
-                    const p = prodCell ? prodCell.innerText.trim() : '제품';
-                    titleInput.value = `${b}_${p}_${new Date().toISOString().slice(0, 10)}`;
+                const catSelect = document.getElementById('cloudSaveDocCategory');
+
+                if (titleInput && prodCell) {
+                    const currentProdName = prodCell.innerText.trim();
+                    titleInput.value = currentProdName || '';
                 }
+
+                if (catSelect && catCell) {
+                    const currentCategory = catCell.innerText.trim();
+                    let matched = false;
+                    for (let i = 0; i < catSelect.options.length; i++) {
+                        if (catSelect.options[i].value === currentCategory || currentCategory.includes(catSelect.options[i].value)) {
+                            catSelect.selectedIndex = i;
+                            matched = true;
+                            break;
+                        }
+                    }
+                    if (!matched) {
+                        catSelect.value = '엔진오일';
+                    }
+                }
+
+                refreshCloudDocList();
             }
         }
 
@@ -3019,18 +3655,28 @@
 
         function saveCurrentDocToCloud() {
             const titleInput = document.getElementById('cloudSaveDocTitle');
-            let docTitle = titleInput ? titleInput.value.trim() : '';
+            const catSelect = document.getElementById('cloudSaveDocCategory');
             const prodCell = document.getElementById('cell_product');
             const buyerCell = document.getElementById('cell_buyer');
-            const catCell = document.getElementById('cell_category');
 
-            const buyer = buyerCell ? buyerCell.innerText.trim() : '대림오일';
-            const product = prodCell ? prodCell.innerText.trim() : '표준규격서';
-            const category = catCell ? catCell.innerText.trim() : '오일';
-
-            if (!docTitle) {
-                docTitle = `${buyer}_${product}_${new Date().toISOString().slice(0, 10)}`;
+            let productName = titleInput ? titleInput.value.trim() : '';
+            if (!productName && prodCell) {
+                productName = prodCell.innerText.trim();
             }
+
+            if (!productName) {
+                showToast('저장할 제품명을 입력해 주세요.');
+                if (titleInput) titleInput.focus();
+                return;
+            }
+
+            const category = catSelect ? catSelect.value : '엔진오일';
+            const buyer = buyerCell ? buyerCell.innerText.trim() : '대림오일';
+
+            // 현재 화면의 제품명 및 구분 셀에도 동기화 반영
+            if (prodCell) prodCell.innerText = productName;
+            const catCell = document.getElementById('cell_category');
+            if (catCell) catCell.innerText = category;
 
             const a4El = document.getElementById('a4Container');
             const historyEl = document.getElementById('historyContainer');
@@ -3038,9 +3684,9 @@
             const docId = 'doc_' + Date.now();
             const newDoc = {
                 id: docId,
-                title: docTitle,
+                title: productName,
+                product: productName,
                 buyer: buyer,
-                product: product,
                 category: category,
                 updatedAt: new Date().toISOString(),
                 content: {
@@ -3050,14 +3696,53 @@
             };
 
             const list = getCloudDocs();
-            list.unshift(newDoc);
-            setCloudDocs(list);
+            // 동일 제품명이 있으면 최신으로 업데이트하거나 상단에 추가
+            const existingIdx = list.findIndex(d => (d.product === productName && d.category === category));
+            if (existingIdx !== -1) {
+                list[existingIdx] = newDoc;
+            } else {
+                list.unshift(newDoc);
+            }
 
+            setCloudDocs(list);
             refreshCloudDocList();
-            showToast(`☁️ [${docTitle}]이(가) 웹 저장소에 성공적으로 저장되었습니다!`);
+            updateQRCode();
+            showToast(`☁️ [${category}] ${productName} 표준서가 웹 저장소에 저장되었습니다!`);
         }
 
-        function refreshCloudDocList(filterKeyword = '') {
+        /* 종류(카테고리) 필터 설정 */
+        function setCategoryFilter(category) {
+            currentCategoryFilter = category;
+            document.querySelectorAll('.cat-filter-btn').forEach(btn => {
+                if (btn.dataset.category === category) {
+                    btn.className = 'cat-filter-btn px-2.5 py-1 rounded-md font-bold text-xs bg-blue-600 text-white transition shadow-sm shrink-0';
+                } else {
+                    btn.className = 'cat-filter-btn px-2.5 py-1 rounded-md font-medium text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 transition shrink-0';
+                }
+            });
+            refreshCloudDocList();
+        }
+
+        /* 한글 초성 및 색인 필터 설정 */
+        function setIndexFilter(indexChar) {
+            currentIndexFilter = indexChar;
+            document.querySelectorAll('.index-filter-btn').forEach(btn => {
+                if (btn.dataset.index === indexChar) {
+                    btn.className = 'index-filter-btn px-1.5 py-0.5 rounded bg-blue-600 text-white font-bold transition';
+                } else {
+                    btn.className = 'index-filter-btn px-1 py-0.5 rounded hover:bg-white text-slate-700 transition';
+                }
+            });
+            refreshCloudDocList();
+        }
+
+        function onSearchInputChange(keyword) {
+            currentSearchKeyword = keyword.trim();
+            refreshCloudDocList();
+        }
+
+        /* 저장 목록 렌더링 및 복합 필터링 (종류 + 색인 + 초성/텍스트 검색) */
+        function refreshCloudDocList() {
             cloudDocsCache = getCloudDocs();
             const container = document.getElementById('cloudDocList');
             const countEl = document.getElementById('cloudDocCount');
@@ -3065,13 +3750,45 @@
             if (!container) return;
 
             let filtered = cloudDocsCache;
-            if (filterKeyword) {
-                const kw = filterKeyword.toLowerCase();
-                filtered = cloudDocsCache.filter(d => 
-                    (d.title && d.title.toLowerCase().includes(kw)) ||
-                    (d.buyer && d.buyer.toLowerCase().includes(kw)) ||
-                    (d.product && d.product.toLowerCase().includes(kw))
-                );
+
+            // 1. 종류(구분)별 필터링
+            if (currentCategoryFilter !== 'ALL') {
+                filtered = filtered.filter(d => (d.category || '기타') === currentCategoryFilter);
+            }
+
+            // 2. 색인(자모/인덱스) 필터링
+            if (currentIndexFilter) {
+                filtered = filtered.filter(d => {
+                    const firstIndex = getFirstChosungOrGroup(d.product || d.title || '');
+                    if (currentIndexFilter === 'A-Z') return firstIndex === 'A-Z';
+                    if (currentIndexFilter === '0-9') return firstIndex === '0-9';
+                    return firstIndex === currentIndexFilter;
+                });
+            }
+
+            // 3. 텍스트 검색 (일반 텍스트 및 한글 초성 검색 지원)
+            if (currentSearchKeyword) {
+                const kw = currentSearchKeyword.toLowerCase();
+                const kwChosung = getChosung(kw);
+
+                filtered = filtered.filter(d => {
+                    const prodName = (d.product || d.title || '').toLowerCase();
+                    const buyerName = (d.buyer || '').toLowerCase();
+                    const categoryName = (d.category || '').toLowerCase();
+
+                    // 일반 텍스트 매칭
+                    if (prodName.includes(kw) || buyerName.includes(kw) || categoryName.includes(kw)) {
+                        return true;
+                    }
+
+                    // 한글 초성 매칭 (예: "ㅇㅈㅇㅇ" -> "엔진오일")
+                    const prodChosung = getChosung(prodName);
+                    if (prodChosung.includes(kwChosung)) {
+                        return true;
+                    }
+
+                    return false;
+                });
             }
 
             if (countEl) countEl.textContent = `${filtered.length}개`;
@@ -3079,7 +3796,7 @@
             if (filtered.length === 0) {
                 container.innerHTML = `
                     <div class="text-center py-12 text-slate-400 text-xs">
-                        검색 조건에 맞는 표준서가 없습니다.
+                        선택한 종류/색인 조건에 맞는 제품 표준서가 없습니다.
                     </div>
                 `;
                 return;
@@ -3092,16 +3809,28 @@
                 
                 const timeStr = doc.updatedAt ? new Date(doc.updatedAt).toLocaleDateString() : '';
 
+                // 카테고리별 뱃지 스타일 매핑
+                let catBadgeColor = 'bg-blue-100 text-blue-800 border-blue-200';
+                if (doc.category === '미션오일/ATF') catBadgeColor = 'bg-purple-100 text-purple-800 border-purple-200';
+                else if (doc.category === '기어유') catBadgeColor = 'bg-amber-100 text-amber-800 border-amber-200';
+                else if (doc.category === '브레이크액') catBadgeColor = 'bg-rose-100 text-rose-800 border-rose-200';
+                else if (doc.category === '부동액/냉각수') catBadgeColor = 'bg-cyan-100 text-cyan-800 border-cyan-200';
+                else if (doc.category === '연료첨가제') catBadgeColor = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+
                 item.innerHTML = `
                     <div class="flex items-center gap-2.5 min-w-0 flex-1">
                         <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0 border border-blue-100">
-                            📄
+                            🛢️
                         </div>
                         <div class="truncate">
-                            <h4 class="font-bold text-slate-800 text-xs truncate">${doc.title || doc.product}</h4>
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded border ${catBadgeColor}">
+                                    ${doc.category || '기타'}
+                                </span>
+                                <h4 class="font-bold text-slate-800 text-xs truncate">${doc.product || doc.title}</h4>
+                            </div>
                             <p class="text-[11px] text-slate-400 flex items-center gap-1.5 mt-0.5">
                                 <span class="bg-slate-100 px-1.5 py-0.2 rounded font-medium text-slate-600">${doc.buyer || '거래처'}</span>
-                                <span>${doc.product || ''}</span>
                                 <span>• ${timeStr}</span>
                             </p>
                         </div>
@@ -3185,6 +3914,116 @@
             showToast('📋 표준서 직통 링크가 클립보드에 복사되었습니다.');
         }
 
+        /* ==========================================================================
+           웹 저장소 전체 보관함 JSON 백업(내보내기) 및 복원(가져오기) 시스템
+           ========================================================================== */
+        
+        // 1. 전체 보관함 데이터 백업 다운로드
+        function backupAllCloudDocsToFile() {
+            try {
+                const list = getCloudDocs();
+                if (!list || list.length === 0) {
+                    showToast('백업할 작업표준서 데이터가 없습니다.');
+                    return;
+                }
+
+                const now = new Date();
+                const pad = (n) => String(n).padStart(2, '0');
+                const timeStamp = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+                const fileName = `DAELIM_SPEC_ALL_BACKUP_${timeStamp}.json`;
+
+                const backupPackage = {
+                    service: 'DAELIM_SPEC_STUDIO',
+                    backupType: 'ALL_CLOUD_DOCUMENTS',
+                    version: '2.6',
+                    exportedAt: now.toISOString(),
+                    totalCount: list.length,
+                    documents: list
+                };
+
+                const blob = new Blob([JSON.stringify(backupPackage, null, 2)], { type: 'application/json;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                showToast(`📦 [총 ${list.length}건] 전체 보관함 백업 파일이 저장되었습니다!`);
+            } catch (err) {
+                console.error(err);
+                showToast('백업 파일을 생성하는 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 2. 백업 파일로부터 보관함 복원 (가져오기)
+        function restoreCloudDocsFromFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    let incomingDocs = [];
+
+                    // 대림오일 백업 패키지 포맷 또는 일반 문서 배열 판별
+                    if (parsed.backupType === 'ALL_CLOUD_DOCUMENTS' && Array.isArray(parsed.documents)) {
+                        incomingDocs = parsed.documents;
+                    } else if (Array.isArray(parsed)) {
+                        incomingDocs = parsed;
+                    } else if (parsed.id && (parsed.title || parsed.product)) {
+                        // 단일 문서 백업 파일인 경우도 지원
+                        incomingDocs = [parsed];
+                    }
+
+                    if (!incomingDocs || incomingDocs.length === 0) {
+                        showToast('유효한 작업표준서 백업 데이터가 없습니다.');
+                        return;
+                    }
+
+                    const currentDocs = getCloudDocs();
+                    const mergedMap = new Map();
+
+                    // 기존 문서 맵 등록
+                    currentDocs.forEach(doc => {
+                        if (doc && doc.id) mergedMap.set(doc.id, doc);
+                    });
+
+                    // 백업 파일 문서 병합 (최신 내용으로 갱신 또는 신규 등록)
+                    let updatedCount = 0;
+                    let addedCount = 0;
+
+                    incomingDocs.forEach(incoming => {
+                        if (!incoming || !incoming.id) return;
+                        if (mergedMap.has(incoming.id)) {
+                            updatedCount++;
+                        } else {
+                            addedCount++;
+                        }
+                        mergedMap.set(incoming.id, incoming);
+                    });
+
+                    const finalList = Array.from(mergedMap.values());
+                    // 최신 수정일순 정렬
+                    finalList.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
+
+                    setCloudDocs(finalList);
+                    refreshCloudDocList();
+
+                    showToast(`🎉 복원 완료! (추가: ${addedCount}건, 갱신: ${updatedCount}건, 총 ${finalList.length}건)`);
+                } catch (err) {
+                    console.error('Restore Error:', err);
+                    showToast('백업 파일 형식이 올바르지 않거나 손상된 파일입니다.');
+                }
+                event.target.value = '';
+            };
+
+            reader.readAsText(file);
+        }
+
         rebindEvents();
         initTableResizing();
         saveState();
@@ -3219,5 +4058,3 @@
             updateEmptyImageVisibility();
         });
     </script>
-</body>
-</html>
